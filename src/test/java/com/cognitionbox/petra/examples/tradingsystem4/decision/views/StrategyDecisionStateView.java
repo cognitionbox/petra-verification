@@ -4,15 +4,16 @@ package com.cognitionbox.petra.examples.tradingsystem4.decision.views;
 // ie allows for separation to reduce state space and therefore reduces complexity of abstract soundness/completeness
 // checking, relative to the information provided in the interface only.
 public interface StrategyDecisionStateView {
-    StatusView statusView();
+    AskVsExitView askVsExitView();
+    AskVsLimitView askVsLimitView();
+    AskVsStopView askVsStopView();
+    BidVsExitView bidVsExitView();
+    BidVsLimitView bidVsLimitView();
+    BidVsStopView bidVsStopView();
     DirectionView directionView();
     QuoteView quoteView();
-    BidVsLimitView bidVsLimitView();
-    AskVsLimitView askVsLimitView();
-    BidVsExitView bidVsExitView();
-    AskVsExitView askVsExitView();
-    BidVsStopView bidVsStopView();
-    AskVsStopView askVsStopView();
+    StatusView statusView();
+
     // buy if so
     default boolean isWaitingAndShouldBuy(){return quoteView().goodQuote() && statusView().isWaiting() && directionView().isBuy() && askVsLimitView().askBelowLimit();}
 

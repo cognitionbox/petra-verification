@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -198,13 +199,15 @@ public class PetraProgram {
                 r = newP.replaceAll("\\(\\)","\")");
             }
         } else {
+            List<Integer> indicies = new ArrayList<>();
             int count = 0;
             for (Method f : fields){
                 if (r.contains(f.getName())){
-                    count++;
+                    indicies.add(count);
                 }
+                count++;
             }
-            for (int x=0;x<count;x++){
+            for (Integer x : indicies){
                 r = r.replaceAll(fields.get(x).getName()+"\\(\\)","list.get("+x+")");
             }
             r = r.replaceAll("\\(\\)","\")");
@@ -329,20 +332,26 @@ public class PetraProgram {
         List<MethodDeclarationAndPredicate> methodDeclarationAndPredicates = new ArrayList<>();
         for (MethodDeclaration m : methodDeclarations){
             String p = m.getBody().get().asBlockStmt().getStatement(0).toString();//.replaceAll("\\(\\)","");
+            List<Integer> indicies = new ArrayList<>();
             int count = 0;
             for (Method f : fields){
                 if (p.contains(f.getName())){
-                    count++;
+                    indicies.add(count);
                 }
+                count++;
             }
             p = p.replaceAll("\\.",".equals(\"");
-            for (int x=0;x<count;x++){
+            for (Integer x : indicies){
                 p = p.replaceAll(fields.get(x).getName()+"\\(\\)","list.get("+x+")");
             }
             p = p.replaceAll("\\(\\)","\")");
-            String predicateSrc = "package com.cognitiobox.petra.codegen; import java.util.List; import java.util.function.Predicate; public class "+m.getName().toString()+" implements Predicate<List<String>> { public boolean test(List<String> list){"+p+"}}";
-            System.out.println(predicateSrc);
-            Class generatedClazz = CompilerUtils.CACHED_COMPILER.loadFromJava("com.cognitiobox.petra.codegen."+m.getName().toString(), predicateSrc);
+            String viewDisjunctPredicateClassName =
+                    "ViewDisjunct_"+
+                    UUID.randomUUID().toString().replaceAll("-","_")+"_"+
+                    m.getName().toString();
+            String predicateSrc = "package com.cognitiobox.petra.codegen; import java.util.List; import java.util.function.Predicate; public class "+viewDisjunctPredicateClassName+" implements Predicate<List<String>> { public boolean test(List<String> list){"+p+"}}";
+            //System.out.println(predicateSrc);
+            Class generatedClazz = CompilerUtils.CACHED_COMPILER.loadFromJava("com.cognitiobox.petra.codegen."+viewDisjunctPredicateClassName, predicateSrc);
             try {
                 Predicate<List<String>> pred = (Predicate<List<String>>) generatedClazz.newInstance();
                 methodDeclarationAndPredicates.add(new MethodDeclarationAndPredicate(m,pred));
@@ -1408,13 +1417,19 @@ public class PetraProgram {
             int count = 0;
             for (ClassPath.ClassInfo info : ClassPath.from(Thread.currentThread().getContextClassLoader())
                     .getAllClasses()){//.getTopLevelClassesRecursive(entryPointPackageName)){ //  { // .getAllClasses()
-                //if (info.getPackageName().contains(entryPointPackageName) &&
-                if (info.getSimpleName().equals(simpleName)){
-                    count++;
-                    if (count>1){
-                        throw new IllegalStateException("class names must be unique.");
+                if (info.getPackageName().contains(entryPointPackageName)){
+                    String pn = info.getPackageName();
+                    String pt = Pattern.quote(entryPointPackageName);
+                    String res = pn.replaceAll(pt,"");
+                    if (res.startsWith(".") || res.isEmpty()){
+                        if (info.getSimpleName().equals(simpleName)){
+                            count++;
+                            if (count>1){
+                                throw new IllegalStateException("class names must be unique.");
+                            }
+                            c = info.load();
+                        }
                     }
-                    c = info.load();
                 }
             }
         } catch (IOException e) {
