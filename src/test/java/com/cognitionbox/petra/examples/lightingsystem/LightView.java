@@ -1,14 +1,14 @@
 package com.cognitionbox.petra.examples.lightingsystem;
-
+// s().off() || p().off()
 public interface LightView {
-    Switch s();
-    Power p();
+    PowerView p();
+    SwitchView s();
     default boolean on(){
         return s().on() && p().on();
     }
 
     default boolean off(){
-        return s().off() || p().off();
+        return (s().on() ^ s().off()) & (p().on() ^ p().off()) & !(s().on() & p().on());
     }
 
     default void turnOn(){

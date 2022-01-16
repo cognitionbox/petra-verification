@@ -1,18 +1,12 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
-public class Switch {
-    private boolean active;
-    void switchOn(){
-        active = true;
-    }
-    void switchOff(){
-        active = false;
-    }
-    boolean off(){
-        return !active;
-    }
+import com.cognitionbox.petra.lang.primitives.impls.PBoolean;
 
-    public boolean on() {
+public class Switch implements SwitchView {
+    private PBoolean active = new PBoolean();
+
+    @Override
+    public PBoolean active() {
         return active;
     }
 }

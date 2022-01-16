@@ -1,18 +1,12 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
-public class Power {
-    private boolean active;
-    void powerOn(){
-        active = true;
-    }
-    void powerOff(){
-        active = false;
-    }
-    boolean on(){
-        return active;
-    }
+import com.cognitionbox.petra.lang.primitives.impls.PBoolean;
 
-    public boolean off() {
-        return !active;
+public class Power implements PowerView {
+    private PBoolean active = new PBoolean();
+
+    @Override
+    public PBoolean active() {
+        return active;
     }
 }

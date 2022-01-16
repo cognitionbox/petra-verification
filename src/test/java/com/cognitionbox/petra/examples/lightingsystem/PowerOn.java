@@ -8,11 +8,11 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 @Edge
-public class PowerOn implements Consumer<Power> {
+public class PowerOn implements Consumer<PowerView> {
     @Override
-    public void accept(Power power) {
+    public void accept(PowerView power) {
         kases(power,
-                kase(p->p.off(), p->p.on(),p->{
+                kase(p->p.off() ^ p.on(), p->p.on(),p->{
                     p.powerOn();
                     //System.out.println(Thread.currentThread());
                 })
