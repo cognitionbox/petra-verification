@@ -102,7 +102,7 @@ public class Verification {
 
         @Override
         public String toString() {
-            return "Sound and complete view: "+view.clazz.getSimpleName();
+            return "View:"+view.clazz.getSimpleName();
         }
     }
 
@@ -118,7 +118,7 @@ public class Verification {
 
         @Override
         public String toString() {
-            return "Proof of "+cu.clazz.getSimpleName()+" kase:"+count;
+            return "Kase"+count+":"+cu.clazz.getSimpleName();
         }
     }
 
