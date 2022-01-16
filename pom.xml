@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cognitionbox.petra</groupId>
+    <groupId>io.cognitionbox.petra</groupId>
     <artifactId>petra-verification</artifactId>
-    <version>pre-alpha</version>
+    <version>alpha-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>io.cognitionbox.petra</groupId>
             <artifactId>petra-core</artifactId>
-            <version>pre-alpha</version>
+            <version>alpha-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
