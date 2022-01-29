@@ -256,7 +256,6 @@ public class PetraProgram {
             List<Method> elementTypeProps = Arrays.asList(elementType.getMethods()).stream().filter(m->m.isDefault() && m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
 
             List<Method> viewProps = Arrays.asList(clazz.getMethods()).stream().filter(m->m.isDefault() && m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
-            boolean firstOk = viewProps.get(0).getName().equals("isEmpty") && getImplementation("isEmpty",all.get(clazz)).equals(fields.get(0).getName()+"().isEmpty();");
             Set<String> elementTypePropsNames = elementTypeProps.stream().map(e->e.getName()).collect(Collectors.toSet());
             Set<Set<String>> ps = Sets.powerSet(elementTypePropsNames);
             List<List<String>> orderedPs = ps
@@ -268,34 +267,34 @@ public class PetraProgram {
                             .collect(Collectors.toList());
             Set<String> viewPropsNamesSet = viewProps.stream().map(m->m.getName()).collect(Collectors.toSet());
             viewPropsNamesSet.remove("isEmpty");
-            // we can make is so that we don't have to declare all these methods like with the non-collection view types
-            for (List<String> ss : orderedPs){
-                if (!ss.isEmpty()){
-                    System.out.println(ss);
-                    StringBuilder disjunction = new StringBuilder();
-                    StringBuilder requiredMethodName = new StringBuilder();
-                    int k = 0;
-                    for (String m : ss){
-                        if (k==0){
-                            disjunction.append(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,elementType.getSimpleName())+"."+m+"()");
-                            requiredMethodName.append("all"+CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, m));
-                        } else {
-                            disjunction.append("^"+CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,elementType.getSimpleName())+"."+m+"()");
-                            requiredMethodName.append("Or"+CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, m));
-                        }
-                        k++;
-                        if (viewPropsNamesSet.contains(requiredMethodName.toString())){
-                            boolean otherOk = getImplementation(requiredMethodName.toString(),all.get(clazz)).replaceAll(" ","")
-                                    .equals(fields.get(0).getName()+"().forall("+CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,elementType.getSimpleName())+"->"+disjunction+");".replaceAll(" ",""));
-                            if (otherOk){
-                                viewPropsNamesSet.remove(requiredMethodName.toString());
-                            }
-                        }
-                    }
+            // Now we don't have to declare all these methods like with the non-collection view types
+            boolean collectionViewOk = true;
+            String invalidCollectionViewPropositionName = null;
+            String invalidCollectionViewPropositionImpl = null;
+            String matchedVar = null;
+            String matchedCollectionVar = null;
+            for (String m : viewPropsNamesSet){
+                String impl = getImplementation(m,all.get(clazz)).replaceAll(" ","");
+                String[] split = impl.split("->");
+                String collectionVar = split[0].split("\\.")[0].replaceAll("\\(\\)","");
+                String var = split[1].split("\\.")[0];
+                impl = split[1].replaceAll("\\(","").replaceAll("\\)","");
+
+                invalidCollectionViewPropositionName = m;
+                invalidCollectionViewPropositionImpl = impl;
+                matchedVar = var;
+                matchedCollectionVar = collectionVar;
+
+                impl = impl.replaceAll(var+"\\.","");
+                List<String> list = Arrays.asList(impl.split("\\^"));
+                if (!orderedPs.contains(list)){
+                    collectionViewOk = false;
+                    break;
                 }
             }
-            if (firstOk && !viewPropsNamesSet.isEmpty()){
-                throw new IllegalStateException("Invalid collection view.");
+            if (!collectionViewOk){
+                throw new IllegalStateException("Invalid collection view.\nThe following universal quantification does not use a valid proposition.\nValid propositions for collection views can only be exclusive disjunctions (without negations)\nof the disjuncts from the underlying type:\n\n"+
+                        invalidCollectionViewPropositionName+"(){\n\treturn "+matchedCollectionVar+"().forall("+matchedVar+"->"+invalidCollectionViewPropositionImpl+");\n}");
             } else {
                 return true;
             }
