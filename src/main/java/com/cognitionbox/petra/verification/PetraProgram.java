@@ -19,8 +19,6 @@ import com.google.common.reflect.ClassPath;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.openhft.compiler.CompilerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,7 +40,7 @@ import java.util.stream.Stream;
 
 public class PetraProgram {
 
-    final static Logger LOG = LoggerFactory.getLogger(PetraProgram.class);
+    final static Logger LOG = new Logger();
 
 //    static final String rootDir = "D:\\git\\private\\petra2\\src\\main\\java\\com\\cognitionbox\\petra2\\example\\nesting";
 //    static final String entryPointPackageName = "com.cognitionbox.petra2.example.nesting";
@@ -280,6 +278,13 @@ public class PetraProgram {
                 String var = split[1].split("\\.")[0];
                 impl = split[1].replaceAll("\\(","").replaceAll("\\)","");
 
+                LOG.info(m+":\nforall "+var+" in "+collectionVar+", "+impl
+                        .replaceAll("\\^"," XOR ")
+                        .replaceAll("\\&\\&"," AND ")
+                        .replaceAll("\\&"," AND ")
+                        .replaceAll("\\|\\|"," OR ")
+                        .replaceAll("\\|"," OR "));
+
                 invalidCollectionViewPropositionName = m;
                 invalidCollectionViewPropositionImpl = impl;
                 matchedVar = var;
@@ -296,6 +301,7 @@ public class PetraProgram {
                 throw new IllegalStateException("Invalid collection view.\nThe following universal quantification does not use a valid proposition.\nValid propositions for collection views can only be exclusive disjunctions (without negations)\nof the disjuncts from the underlying type:\n\n"+
                         invalidCollectionViewPropositionName+"(){\n\treturn "+matchedCollectionVar+"().forall("+matchedVar+"->"+invalidCollectionViewPropositionImpl+");\n}");
             } else {
+                LOG.info("Collection view is sound as all universal quantifications use a valid proposition.");
                 return true;
             }
         } else if (fields.stream().filter(f->!f.isDefault() && Collection.class.isAssignableFrom(f.getReturnType())).count() > 1){
@@ -400,17 +406,12 @@ public class PetraProgram {
                 }
             }
         }
-        if (isSound){
-            LOG.info("no overlaps, therefore is sound.");
-        } else {
-            LOG.info("overlaps, therefore is not sound.");
-        }
         if (isComplete){
             List t = truth.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             List a = all.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             LOG.info("all cases: "+t);
             LOG.info("covered cases: "+a);
-            LOG.info("all cases covered, therefore is complete.");
+            //LOG.info("all cases covered, therefore is complete.");
         } else {
             List t = truth.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             List a = all.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
@@ -420,6 +421,11 @@ public class PetraProgram {
             m.removeAll(all);
             LOG.info("missing cases: "+m);
             LOG.info("not all cases covered, therefore is not complete.");
+        }
+        if (isSound){
+            LOG.info("View is sound as there are no overlaps.");
+        } else {
+            LOG.info("View is not sound as there are overlaps.");
         }
 //        if (!isComplete || !isSound){
 //            throw new IllegalStateException("not sound and/or not complete.");
