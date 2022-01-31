@@ -2130,7 +2130,7 @@ public class PetraProgram {
             startingLetter = 64;
             appendToStringBuilderAndGetNextClassToProcess(root,all.get(root).path,rootGraphName,sb);
             Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("target\\"+entryPointPackageName.replaceAll("\\.","_")+"_FLOWS.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream("target/"+entryPointPackageName.replaceAll("\\.","_")+"_FLOWS.pdf"));
             document.open();
 //            Font font = FontFactory.getFont(FontFactory.COURIER, 11, BaseColor.BLACK);
 //            Chunk chunk = new Chunk("asdsa", font);
@@ -2140,7 +2140,7 @@ public class PetraProgram {
 
             startingLetter = 64;
             Document document2 = new Document();
-            PdfWriter.getInstance(document2, new FileOutputStream("target\\"+entryPointPackageName.replaceAll("\\.","_")+"_DATA.pdf"));
+            PdfWriter.getInstance(document2, new FileOutputStream("target/"+entryPointPackageName.replaceAll("\\.","_")+"_DATA.pdf"));
             document2.open();
             for (CompilationUnitWithData cu : all.values().stream().filter(c->
                     c.clazz.isInterface() &&
