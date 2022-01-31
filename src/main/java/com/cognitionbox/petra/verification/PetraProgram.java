@@ -2127,15 +2127,37 @@ public class PetraProgram {
         StringBuilder sb = new StringBuilder();
         try {
             Class root = Class.forName(entryPointPackageName+"."+rootGraphName);
+            startingLetter = 64;
             appendToStringBuilderAndGetNextClassToProcess(root,all.get(root).path,rootGraphName,sb);
             Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(entryPointPackageName.replaceAll("\\.","_")+".pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream(entryPointPackageName.replaceAll("\\.","_")+"_FLOWS.pdf"));
             document.open();
 //            Font font = FontFactory.getFont(FontFactory.COURIER, 11, BaseColor.BLACK);
 //            Chunk chunk = new Chunk("asdsa", font);
             Paragraph p = new Paragraph(sb.toString());
             document.add(p);
             document.close();
+
+            startingLetter = 64;
+            Document document2 = new Document();
+            PdfWriter.getInstance(document2, new FileOutputStream(entryPointPackageName.replaceAll("\\.","_")+"_DATA.pdf"));
+            document2.open();
+            for (CompilationUnitWithData cu : all.values().stream().filter(c->
+                    c.clazz.isInterface() &&
+                            !c.clazz.getSimpleName().startsWith("P") &&
+                            !Consumer.class.isAssignableFrom(c.clazz) &&
+                            !c.clazz.isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
+                ClassOrInterfaceDeclaration c = cu.compilationUnit.getInterfaceByName(cu.clazz.getSimpleName()).get();
+                try {
+                    String view = getControlledEnglishOfView(cu.compilationUnit,cu.clazz,c);
+                    Paragraph p2 = new Paragraph(view);
+                    document2.add(p2);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            document2.close();
+
         } catch (ClassNotFoundException | FileNotFoundException | DocumentException e) {
             e.printStackTrace();
         }
@@ -2166,7 +2188,8 @@ public class PetraProgram {
                 ClassOrInterfaceDeclaration graph = cu.getClassByName(name).get();
                 Statement kases = graph.getMethodsByName("accept").get(0).getBody().get().getStatement(0);
                 sb.append("\n");
-                sb.append(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,name).replaceAll("_"," ")+":\n");
+                startingLetter++;
+                sb.append(startingLetter+". "+CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,name).replaceAll("_"," ")+":\n\n");
                 int i = 0;
                 for (Expression a : kases.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
                     if (i==0){
@@ -2198,9 +2221,9 @@ public class PetraProgram {
                                 }
                                 j++;
                             }
-                            sb.append("\n");
+                            sb.append(", "); // \n
                         }
-                        sb.append("then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+"\n");
+                        sb.append("then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
                     }
                     i++;
                 }
@@ -2387,5 +2410,77 @@ public class PetraProgram {
             }
         }
         return null;
+    }
+
+    private static char startingLetter = 65;
+    static String getControlledEnglishOfView(CompilationUnit cu, Class clazz, ClassOrInterfaceDeclaration c) throws ClassNotFoundException {
+        // field methods need to be declared in alphabetical order
+        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().sorted(Comparator.comparing(Method::getName)).filter(m -> !m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
+        // use this one instead.
+        List<MethodDeclaration> fieldMethodDeclarations = c.getMethods().stream().filter(m -> !m.isDefault() && !m.getType().asString().equals("boolean")).collect(Collectors.toList());
+
+        if (!fields.stream().map(f -> f.getName()).collect(Collectors.toList()).equals(
+                fieldMethodDeclarations.stream().map(f -> f.getName().asString()).collect(Collectors.toList()))
+        ) {
+            throw new IllegalStateException("fields of view must be declared in alphabetical order.");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        startingLetter++;
+        sb.append(startingLetter+". "+clazz.getSimpleName().toLowerCase()+":\n\n");
+        List<Method> viewProps = Arrays.asList(clazz.getMethods()).stream().filter(m -> m.isDefault() && m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
+        Set<String> viewPropsNamesSet = viewProps.stream().map(m -> m.getName()).collect(Collectors.toSet());
+        if (fields.size() == 1 && !fields.get(0).isDefault() && Collection.class.isAssignableFrom(fields.get(0).getReturnType())) {
+            // check defaults of view
+
+            viewPropsNamesSet.remove("isEmpty");
+
+            int no = 1;
+            for (String m : viewPropsNamesSet) {
+                String impl = getImplementation(m, all.get(clazz)).replaceAll(" ", "");
+                String[] split = impl.split("->");
+                String collectionVar = split[0].split("\\.")[0].replaceAll("\\(\\)", "");
+                String var = split[1].split("\\.")[0];
+                impl = split[1].replaceAll("\\(", "").replaceAll("\\)", "");
+                impl = impl.replaceAll(var+"\\.","");
+
+                String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll("_"," ");
+                sb.append(no+". "+methodInEnglish+"" + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
+                        .replaceAll("\\!", "not ")
+                        .replaceAll("\\^", " or ")
+                        .replaceAll("\\&\\&", " and ")
+                        .replaceAll("\\&", " and ")
+                        .replaceAll("\\|\\|", " or ")
+                        .replaceAll("\\|", " or ")+".\n\n");
+                no++;
+            }
+        } else {
+            int no = 1;
+            for (String m : viewPropsNamesSet) {
+                String impl = getImplementation(m, all.get(clazz)).replaceAll(" ", "");
+                impl = impl.replaceAll("\\(", "").replaceAll("\\)", "");
+                impl = impl.replaceAll("\\."," ");
+                String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll("_"," ");
+                sb.append(no+". "+methodInEnglish + ", means, "+lowerCamelToEnglishForEachInSplit(impl)
+                        .replaceAll("\\!", "not ")
+                        .replaceAll("\\^", " or ")
+                        .replaceAll("\\&\\&", " and ")
+                        .replaceAll("\\&", " and ")
+                        .replaceAll("\\|\\|", " or ")
+                        .replaceAll("\\|", " or ")+".\n\n");
+                no++;
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String lowerCamelToEnglishForEachInSplit(String toSplit){
+        String[] split = toSplit.split(" ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,split[0]).replaceAll("_"," "));
+        for (int i=1;i<split.length; i++){
+            sb.append(" "+CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,split[i]).replaceAll("_"," "));
+        }
+        return sb.toString();
     }
 }
