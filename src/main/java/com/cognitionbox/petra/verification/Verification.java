@@ -198,7 +198,7 @@ public class Verification {
 //            PetraProgram.convertToControlledEnglish();
 //        }
 
-        if (false && tasks.stream().allMatch(t->t.passed())){
+        if (tasks.stream().allMatch(t->t.passed())){
             PetraProgram.convertToControlledEnglish();
         }
     }
