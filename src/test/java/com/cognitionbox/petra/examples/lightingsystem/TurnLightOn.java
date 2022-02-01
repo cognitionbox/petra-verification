@@ -14,8 +14,8 @@ public class TurnLightOn implements Consumer<LightView> {
     @Override
     public void accept(LightView light) {
         kases(light,
-                kase(l->l.off(), l->l.on(),l->{
-                    join(par(l.s(),new SwitchOn()), par(l.p(),new PowerOn()));
+                kase(light_->light_.off(), light_->light_.on(),light_->{
+                    join(light_,par(light__->light__.s(),new SwitchOn()), par(light__->light__.p(),new PowerOn()));
                 })
             );
     }

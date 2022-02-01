@@ -447,7 +447,12 @@ public class PetraProgram {
                 .asBlockStmt()
                 .getStatements()) {
             if (si.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
+                int a = 0;
                 for (Expression arg : si.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
+                    if (a==0){
+                        a++;
+                        continue;
+                    }
                     if (arg.asMethodCallExpr().getName().toString().equals("parr")){
                         if (!beforeLogged){
                             LOG.debug("before PAR_FORALL_INTRO applied to "+cu.clazz.getSimpleName()+" kase:"+count);
@@ -456,8 +461,8 @@ public class PetraProgram {
                         }
                         String methodName = arg.asMethodCallExpr().getName().asString();
                         MethodCallExpr step = new MethodCallExpr(methodName.substring(0,methodName.length()-1));
-                        for (Expression a : arg.asMethodCallExpr().getArguments()) {
-                            step.addArgument(a);
+                        for (Expression e : arg.asMethodCallExpr().getArguments()) {
+                            step.addArgument(e);
                         }
                         MethodCallExpr preWithForall = new MethodCallExpr("forall");
                         //preWithForall.addArgument(stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0));
@@ -495,6 +500,7 @@ public class PetraProgram {
                         args.forEach(e->step.getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().addArgument(e));
                         replacements.add(new Pair<Integer, Expression>(i,step));
                     }
+                    a++;
                 }
                 for (Pair<Integer,Expression> r : replacements){
                     si.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().remove(r.a);
@@ -804,16 +810,19 @@ public class PetraProgram {
 
                 StringBuilder preConjunction = new StringBuilder();
                 StringBuilder postConjunction = new StringBuilder();
-                int c = 0;
+                int a = 0;
                 for (Expression par : stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
-                    if (c==0){
+                    if (a==0){
+                        a++;
+                        continue;
+                    } else if (a==1){
                         preConjunction.append("("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
                         postConjunction.append("("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
                     } else {
                         preConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
                         postConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
                     }
-                    c++;
+                    a++;
                 }
                 stepInstruction.remove();
                 kase.asMethodCallExpr()
@@ -959,7 +968,12 @@ public class PetraProgram {
                 beforeLogged = true;
             }
             if (si.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join")){
+                int a = 0;
                 for (Expression parOrParr : si.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
+                    if (a==0){
+                        a++;
+                        continue;
+                    }
                     int arg = parOrParr.asMethodCallExpr().getArguments().size() - 1;
                     if (parOrParr.asMethodCallExpr().getArgument(arg).isObjectCreationExpr()) {
                         Class c = getClassIfSimpleNameIsUniqueInPackage(
@@ -1157,6 +1171,7 @@ public class PetraProgram {
 //                            stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().setName("seqr");
 //                        }
                     }
+                    a++;
                 }
             }
         }
