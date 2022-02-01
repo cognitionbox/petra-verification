@@ -1,10 +1,10 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
-import com.cognitionbox.petra.lang.Petra;
+import static com.cognitionbox.petra.lang.Petra.start;
 
 public class ExpiredLicensesCleanerMain {
     public static void main(String... args){
-        Petra.finiteStart(
+        start(
                 new DeleteExpiredLicenses(),
                 new SystemData());
     }
