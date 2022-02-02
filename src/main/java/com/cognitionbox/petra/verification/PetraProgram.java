@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * CONFIDENTIAL - COGNITION BOX LIMITED
+ *  __________________
+ *
+ *  © 2020 Cognition Box Limited
+ *  All Rights Reserved.
+ *
+ * NOTICE:
+ * All information contained herein is, and remains the property of
+ * Cognition Box Limited and its licensees, if any. The intellectual
+ * and technical concepts contained herein are proprietary to
+ * Cognition Box Limited and its licensees and may be covered
+ * by patents in process, and are protected by trade secret or
+ * copyright law. Dissemination of this information or reproduction
+ * of this material is strictly forbidden unless prior written
+ * permission is obtained from Cognition Box Limited.
+ ******************************************************************************/
+
 package com.cognitionbox.petra.verification;
 
 import com.cognitionbox.petra.annotations.*;
