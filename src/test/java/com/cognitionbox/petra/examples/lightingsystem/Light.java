@@ -7,8 +7,8 @@ public interface Light {
         return button().on() && power().on();
     }
 
+    // below is same as (button().off() || power().off()), it just demonstrates expressibility
     default boolean off(){
-        // below is same as (button().off() || power().off()), it just demonstrates expressibility
         return (button().on() ^ button().off()) & (power().on() ^ power().off()) & !(button().on() & power().on());
     }
 
