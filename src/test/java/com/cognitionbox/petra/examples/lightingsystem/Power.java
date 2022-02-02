@@ -1,12 +1,22 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
+import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.lang.primitives.impls.PBoolean;
 
-public class Power implements PowerView {
-    private PBoolean active = new PBoolean();
+@Primative
+public interface Power {
+    PBoolean active();
+    default void powerOn(){
+        active().set(true);
+    }
+    default void powerOff(){
+        active().set(false);
+    }
+    default boolean off(){
+        return !active().get();
+    }
 
-    @Override
-    public PBoolean active() {
-        return active;
+    default boolean on() {
+        return active().get();
     }
 }

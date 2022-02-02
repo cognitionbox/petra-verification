@@ -8,13 +8,12 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 @Edge
-public class PowerOn implements Consumer<Power> {
+public class PrintLightOn implements Consumer<Light> {
     @Override
-    public void accept(Power p) {
-        kases(p,
-                kase(power->power.off() ^ power.on(), power->power.on(),power->{
-                    power.powerOn();
-                    //System.out.println(Thread.currentThread());
+    public void accept(Light l) {
+        kases(l,
+                kase(light->light.on(), light->light.on(),light->{
+                    System.out.println("Light switched On.");
                 })
         );
     }

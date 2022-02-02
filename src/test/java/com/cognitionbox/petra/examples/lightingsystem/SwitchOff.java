@@ -8,12 +8,12 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 @Edge
-public class SwitchOff implements Consumer<Switch> {
+public class SwitchOff implements Consumer<Button> {
     @Override
-    public void accept(Switch swt) {
-        kases(swt,
-                kase(s->s.on(), s->s.off(),s->{
-                    s.switchOff();
+    public void accept(Button b) {
+        kases(b,
+                kase(button->button.on(), button->button.off(),button->{
+                    button.switchOff();
                 })
         );
     }

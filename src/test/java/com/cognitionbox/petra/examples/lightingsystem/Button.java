@@ -4,7 +4,7 @@ import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.lang.primitives.impls.PBoolean;
 
 @Primative
-public interface SwitchView {
+public interface Button {
     PBoolean active();
     default void switchOn(){
         active().set(true);

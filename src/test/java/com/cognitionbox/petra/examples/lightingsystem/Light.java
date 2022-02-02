@@ -1,11 +1,24 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
-public class Light implements LightView {
-    private final Switch s = new Switch();
-    private final Power p = new Power();
+public interface Light {
+    Button button();
+    Power power();
+    default boolean on(){
+        return button().on() && power().on();
+    }
 
-    @Override
-    public Switch s() { return s; }
-    @Override
-    public Power p() { return p; }
+    default boolean off(){
+        // below is same as (button().off() || power().off()), it just demonstrates expressibility
+        return (button().on() ^ button().off()) & (power().on() ^ power().off()) & !(button().on() & power().on());
+    }
+
+    default void turnOn(){
+        power().powerOn();
+        button().switchOn();
+    }
+
+    default void turnOff(){
+        power().powerOff();
+        button().switchOff();
+    }
 }

@@ -1,6 +1,6 @@
 package com.cognitionbox.petra;
 
-import com.cognitionbox.petra.examples.lightingsystem.TurnLightOn;
+import com.cognitionbox.petra.examples.lightingsystem.ToggleLight;
 import com.cognitionbox.petra.verification.Verification;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -15,7 +15,7 @@ public class LightingSystemVerification extends Verification {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection tasks() {
-        setRoot(TurnLightOn.class);
+        setRoot(ToggleLight.class);
         return Verification.tasks();
     }
 }

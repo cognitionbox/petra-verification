@@ -4,6 +4,6 @@ import static com.cognitionbox.petra.lang.Petra.start;
 
 public class LightingSystemMain {
     public static void main(String... args){
-        start(new TurnLightOn(),new Light());
+        start(new ToggleLight(),new LightImpl());
     }
 }

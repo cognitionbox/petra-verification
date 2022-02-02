@@ -789,6 +789,7 @@ public class PetraProgram {
             beforeLogged = true;
         }
 
+        int i = 0;
         for (Statement stepInstruction : kase
                 .asMethodCallExpr()
                 .getArgument(2)
@@ -829,14 +830,16 @@ public class PetraProgram {
                         .getArgument(2)
                         .asLambdaExpr()
                         .getBody()
-                        .asBlockStmt().addStatement(seq);
+                        .asBlockStmt().addStatement(i,seq);
                 MethodCallExpr kse = new MethodCallExpr("kase");
                 kse.addArgument(preConjunction.toString());
                 kse.addArgument(postConjunction.toString());
                 kse.addArgument(new LambdaExpr(new Parameter(), new BlockStmt()));
                 kse.addArgument("ASSUMED");
                 kases.addArgument(kse);
+                break; // hack!!! need to find out why we are getting ConcurrentModificationException without this.
             }
+            i++;
         }
 
         if (beforeLogged){
@@ -906,6 +909,13 @@ public class PetraProgram {
 
                 StringBuilder preConjunction = new StringBuilder();
                 StringBuilder postConjunction = new StringBuilder();
+
+                kase.asMethodCallExpr()
+                        .getArgument(2)
+                        .asLambdaExpr()
+                        .getBody()
+                        .asBlockStmt().addStatement(i,seq);
+
                 int c = 0;
                 for (Statement s : seperationGroup){
                     if (c==0){
@@ -918,11 +928,6 @@ public class PetraProgram {
                     c++;
                     s.remove();
                 }
-                kase.asMethodCallExpr()
-                        .getArgument(2)
-                        .asLambdaExpr()
-                        .getBody()
-                        .asBlockStmt().addStatement(seq);
 
                 MethodCallExpr kse = new MethodCallExpr("kase");
                 kse.addArgument(preConjunction.toString());

@@ -10,10 +10,10 @@ import static com.cognitionbox.petra.lang.Petra.kases;
 @Edge
 public class PowerOff implements Consumer<Power> {
     @Override
-    public void accept(Power power) {
-        kases(power,
-                kase(p->p.on(), p->p.off(),p->{
-                    p.powerOff();
+    public void accept(Power p) {
+        kases(p,
+                kase(power->power.on(), power->power.off(),power->{
+                    power.powerOff();
                 })
         );
     }
