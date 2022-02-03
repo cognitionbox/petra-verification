@@ -365,7 +365,9 @@ public class PetraProgram {
             }
             p = p.replaceAll("\\.",".equals(\"");
             for (Integer x : indicies){
-                p = p.replaceAll(fields.get(x).getName()+"\\(\\)","list.get("+x+")");
+                p = p.replaceAll("\\("+fields.get(x).getName()+"\\(\\)\\.","(list.get("+x+").");
+                p = p.replaceAll("\\!"+fields.get(x).getName()+"\\(\\)\\.","!list.get("+x+").");
+                p = p.replaceAll(" "+fields.get(x).getName()+"\\(\\)\\."," list.get("+x+").");
             }
             p = p.replaceAll("\\(\\)","\")");
             String viewDisjunctPredicateClassName =
@@ -374,13 +376,15 @@ public class PetraProgram {
                     m.getName().toString();
             String predicateSrc = "package com.cognitiobox.petra.codegen; import java.util.List; import java.util.function.Predicate; public class "+viewDisjunctPredicateClassName+" implements Predicate<List<String>> { public boolean test(List<String> list){"+p+"}}";
             //System.out.println(predicateSrc);
-            Class generatedClazz = CompilerUtils.CACHED_COMPILER.loadFromJava("com.cognitiobox.petra.codegen."+viewDisjunctPredicateClassName, predicateSrc);
             try {
+                Class generatedClazz = CompilerUtils.CACHED_COMPILER.loadFromJava("com.cognitiobox.petra.codegen."+viewDisjunctPredicateClassName, predicateSrc);
                 Predicate<List<String>> pred = (Predicate<List<String>>) generatedClazz.newInstance();
                 methodDeclarationAndPredicates.add(new MethodDeclarationAndPredicate(m,pred));
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e){
                 e.printStackTrace();
             }
         }
@@ -1725,8 +1729,26 @@ public class PetraProgram {
 //                o++;
 //            }
 //            preImpl = "return "+preImpl.replaceAll(";","")+";";
-            P = resolveImplementation(k.asMethodCallExpr().getArgument(0).toString(), theViewClass);
-            Q = resolveImplementation(k.asMethodCallExpr().getArgument(1).toString(), theViewClass);
+            int preconditionDotCount = getMatchesCount(k.asMethodCallExpr().getArgument(0).toString(),'.');
+            int preconditionXorCount = getMatchesCount(k.asMethodCallExpr().getArgument(0).toString(),'^');
+            if (preconditionDotCount==1 || k.asMethodCallExpr().getArgument(0).toString().contains("forall") ||  preconditionDotCount==preconditionXorCount+1){
+                P = resolveImplementation(k.asMethodCallExpr().getArgument(0).toString(), theViewClass);
+            } else if (preconditionDotCount==2){
+                P = k.asMethodCallExpr().getArgument(0).toString().split("->")[1].trim().split("\\.",2)[1];
+            } else if (preconditionDotCount>2){
+                throw new IllegalArgumentException("precondition cannot go this deep!");
+            }
+
+            int postconditionDotCount = getMatchesCount(k.asMethodCallExpr().getArgument(1).toString(),'.');
+            int postconditionXorCount = getMatchesCount(k.asMethodCallExpr().getArgument(1).toString(),'^');
+            if (postconditionDotCount==1 || k.asMethodCallExpr().getArgument(1).toString().contains("forall") || postconditionDotCount==postconditionXorCount+1){
+                Q = resolveImplementation(k.asMethodCallExpr().getArgument(1).toString(), theViewClass);
+            } else if (postconditionDotCount==2){
+                Q = k.asMethodCallExpr().getArgument(1).toString().split("->")[1].trim().split("\\.",2)[1];
+            } else if (postconditionDotCount>2){
+                throw new IllegalArgumentException("postcondition cannot go this deep!");
+            }
+
             graph.symbolicStates.put(kaseNo,
                     new SymbolicState(filterStatesUsingBooleanPrecondition(
                             viewTruth.getSymbolicStates(),
@@ -2238,10 +2260,15 @@ public class PetraProgram {
                             int j = 0;
                             for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                 String stepName = null;
-                                if (step.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==3){
-
-                                } else if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
-                                    stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).asObjectCreationExpr().getType().getName().toString();
+                                if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
+                                    String firstParOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArgument(1).asObjectCreationExpr().getType().getName().toString();
+                                    StringBuilder steps = new StringBuilder();
+                                    steps.append(firstParOrParrStep);
+                                    for (int arg=2;arg<=step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArguments().size();arg++){
+                                        String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).asObjectCreationExpr().getType().getName().toString();
+                                        steps.append(" in parallel with "+parOrParrStep);
+                                    }
+                                    stepName = steps.toString();
                                 } else if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seq") ||
                                         step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("par") ||
                                         step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seqr") ||
@@ -2302,6 +2329,16 @@ public class PetraProgram {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static int getMatchesCount(String someString, char toCount){
+        int count = 0;
+        for (int i = 0; i < someString.length(); i++) {
+            if (someString.charAt(i) == toCount) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static boolean checkForPreOrPostsAgainstView(Set<String> presOrposts, Class inter, boolean trueForEqualsFalseforContains){
@@ -2485,7 +2522,7 @@ public class PetraProgram {
                 String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll("_"," ");
                 sb.append(no+". "+methodInEnglish+"" + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
                         .replaceAll("\\!", "not ")
-                        .replaceAll("\\^", " or ")
+                        .replaceAll("\\^", " xor ")
                         .replaceAll("\\&\\&", " and ")
                         .replaceAll("\\&", " and ")
                         .replaceAll("\\|\\|", " or ")
