@@ -4,20 +4,19 @@ import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class ChooseClothing implements Consumer<System> {
+public class ChooseClothingL1 implements Consumer<SystemL1> {
     @Override
-    public void accept(System s) {
+    public void accept(SystemL1 s) {
         kases(s,
-                kase(
-                    system->system.clothing().undecided(),
+                kase(system->system.clothingUndecided(),
                     system->system.sunnyWeekdayHatClothing() ^
                             system.rainyWeekdaySmartJacketClothing() ^
-                            system.moderateWeekdayUndecidedClothing() ^
+                            system.moderateWeekdayAnyClothing() ^
                             system.sunnyWeekendTshirtClothing() ^
                             system.rainyWeekendRainCoatClothing() ^
                             system.moderateWeekendNotSmartJacketClothing(),
                     system->{
-                        seq(system,new ChooseClothingDetails());
+                        seq((SystemL2) system,new ChooseClothingL2());
                     })
                 );
     }

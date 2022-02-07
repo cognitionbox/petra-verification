@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
-public class SystemImpl implements System {
+public class SystemImpl implements SystemL1, SystemL2 {
 
     DayAndWeather dayAndWeather = new DayAndWeatherImpl();
 

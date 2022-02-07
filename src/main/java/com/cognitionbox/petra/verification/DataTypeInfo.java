@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class DataTypeInfo implements Serializable {
     final Set<List<String>> truth;
-    final List<MethodDeclaration> methodDeclarations;
-    public DataTypeInfo(Set<List<String>> truth, List<MethodDeclaration> methodDeclarations) {
+    final Set<MethodDeclaration> methodDeclarations;
+    public DataTypeInfo(Set<List<String>> truth, Set<MethodDeclaration> methodDeclarations) {
         this.truth = truth;
         this.methodDeclarations = methodDeclarations;
     }

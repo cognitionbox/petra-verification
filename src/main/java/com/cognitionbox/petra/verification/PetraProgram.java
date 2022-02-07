@@ -336,13 +336,22 @@ public class PetraProgram {
                 Class cls = getClassIfSimpleNameIsUniqueInPackage(
                         cu.getPackageDeclaration().get().getNameAsString(),
                         t.getSimpleName());
-                CompilationUnitWithData cu2 = all.get(cls);
-                ClassOrInterfaceDeclaration declaration = cu2.compilationUnit.getInterfaceByName(t.getSimpleName()).get();
-                methodNames[i] = declaration.getMethods().stream().filter(m->m.getType().asString().equals("boolean")).map(m->m.asMethodDeclaration().getName().toString()).collect(Collectors.toSet());
+//                CompilationUnitWithData cu2 = all.get(cls);
+//                ClassOrInterfaceDeclaration declaration = cu2.compilationUnit.getInterfaceByName(t.getSimpleName()).get();
+//                methodNames[i] = declaration.getMethods().stream().filter(m->m.getType().asString().equals("boolean")).map(m->m.asMethodDeclaration().getName().toString()).collect(Collectors.toSet());
+                methodNames[i] = Arrays.asList(cls.getMethods()).stream().filter(m->m.isDefault() && m.getReturnType().equals(boolean.class)).map(m->m.getName()).collect(Collectors.toSet());
                 i++;
             }
         }
-        List<MethodDeclaration> methodDeclarations = c.getMethods().stream().filter(m->m.isDefault() && m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")).collect(Collectors.toList());
+
+        Set<MethodDeclaration> methodDeclarations = c.getMethods().stream().filter(m->m.isDefault() && m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")).collect(Collectors.toSet());
+
+        if (clazz.getInterfaces().length>0){
+            Class superClass = clazz.getInterfaces()[0];
+            methodDeclarations.addAll(all.get(superClass).compilationUnit.getInterfaceByName(superClass.getSimpleName()).get().getMethods()
+                    .stream().filter(m->m.isDefault() && m.getType().isPrimitiveType() && m.getType().asPrimitiveType().getType().asString().equals("boolean")).collect(Collectors.toSet()));
+        }
+
 //        if (methodDeclarations.size()==0){
 //            for (Class inter : clazz.getInterfaces()){
 //                MethodDeclaration md = new MethodDeclaration();
@@ -389,11 +398,18 @@ public class PetraProgram {
             }
         }
         Set<List<String>> truth = Sets.cartesianProduct(methodNames);
+
+        LOG.info("View: "+clazz.getSimpleName()+" = "+fieldMethodDeclarations.stream().map(f->f.getType().asString()).reduce((a,b)->a+" X "+b).get()+" = "+truth.size()+" states.");
+
         Set<List<String>> all = new HashSet<>();
         List<MethodDeclarationAndSet> methodDeclarationAndSets = new ArrayList<>();
         for (MethodDeclarationAndPredicate pair : methodDeclarationAndPredicates){
             Set<List<String>> s = truth.stream().filter(e->pair.predicate.test(e)).collect(Collectors.toSet());
-            LOG.info(pair.methodDeclaration.getNameAsString()+" covers: "+s);
+            LOG.info(pair.methodDeclaration.getNameAsString()+" covers: "+s.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
             methodDeclarationAndSets.add(new MethodDeclarationAndSet(pair.methodDeclaration,s));
             all.addAll(s);
         }
@@ -414,7 +430,11 @@ public class PetraProgram {
                             //LOG.info("is not sound.");
                             isSound = false;
                         }
-                        LOG.info(m1.methodDeclaration.getNameAsString()+" overlaps with "+m2.methodDeclaration.getNameAsString()+" on states: "+a);
+                        LOG.info(m1.methodDeclaration.getNameAsString()+" overlaps with "+m2.methodDeclaration.getNameAsString()+" on states: "+a.toString()
+                                .replaceAll("\\[\\[","[\n [")
+                                .replaceAll("\\],","],\n")
+                                .replaceAll("\\]\\]","]\n]")
+                        );
                     }
 //                    Set b = new HashSet<>(m2.set);
 //                    b.retainAll(m1.set);
@@ -431,17 +451,37 @@ public class PetraProgram {
         if (isComplete){
             List t = truth.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             List a = all.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
-            LOG.info("all cases: "+t);
-            LOG.info("covered cases: "+a);
+            LOG.info("all cases: "+t.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
+            LOG.info("covered cases: "+a.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
             //LOG.info("all cases covered, therefore is complete.");
         } else {
             List t = truth.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             List a = all.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
-            LOG.info("all cases: "+t);
-            LOG.info("covered cases: "+a);
+            LOG.info("all cases: "+t.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
+            LOG.info("covered cases: "+a.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
             Set<List<String>> m = new HashSet<>(truth);
             m.removeAll(all);
-            LOG.info("missing cases: "+m);
+            LOG.info("missing cases: "+m.toString()
+                    .replaceAll("\\[\\[","[\n [")
+                    .replaceAll("\\],","],\n")
+                    .replaceAll("\\]\\]","]\n]")
+            );
             LOG.info("not all cases covered, therefore is not complete.");
         }
         if (isSound){
@@ -1600,8 +1640,16 @@ public class PetraProgram {
         if (preRes2.get()!=null ^ postRes2.get()!=null){
             // check implementation is valid
             if (preRes2.get()!=null && postRes2.get()==null){
-                String impl = all.get(preRes2.get()).compilationUnit.getInterfaceByName(preRes2.get().getSimpleName()).get().getMethodsByName(new ArrayList<>(preSet).get(0)).get(0).getBody().get().getStatement(0).toString().replaceAll("return","");
-                return impl.trim().replaceAll(";","");
+                List<MethodDeclaration> method = all.get(preRes2.get()).compilationUnit.getInterfaceByName(preRes2.get().getSimpleName()).get().getMethodsByName(new ArrayList<>(preSet).get(0));
+                if (method.size()>0){
+                    String impl = method.get(0).getBody().get().getStatement(0).toString().replaceAll("return","");
+                    return impl.trim().replaceAll(";","");
+                } else {
+                    Class clazz = preRes2.get().getInterfaces()[0];
+                    method = all.get(clazz).compilationUnit.getInterfaceByName(clazz.getSimpleName()).get().getMethodsByName(new ArrayList<>(preSet).get(0));
+                    String impl = method.get(0).getBody().get().getStatement(0).toString().replaceAll("return","");
+                    return impl.trim().replaceAll(";","");
+                }
             }
         }
         return null;
@@ -1882,12 +1930,20 @@ public class PetraProgram {
                     }
                 }
 
+                Class theCastClass = theViewClass;
+                if (si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).isCastExpr()){
+                    String castClass = si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asCastExpr().getType().asString();
+                    theCastClass = getClassIfSimpleNameIsUniqueInPackage(
+                            graph.compilationUnit.getPackageDeclaration().get().getNameAsString(),
+                            castClass);
+                }
+
                 String siP = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
                         .asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0) // the kase
-                        .asMethodCallExpr().getArgument(0).toString(),theViewClass);
+                        .asMethodCallExpr().getArgument(0).toString(),theCastClass);
                 String siQ = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
                         .asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0) // the kase
-                        .asMethodCallExpr().getArgument(1).toString(),theViewClass);
+                        .asMethodCallExpr().getArgument(1).toString(),theCastClass);
                 Set<List<String>> preSet = filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), siP, theViewClass);
                 if (si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatements().size()==1 &&
                         (!graph.symbolicStates.get(kaseNo).isForall() && preSet.containsAll(graph.symbolicStates.get(kaseNo).getSymbolicStates()))) {
@@ -2015,6 +2071,14 @@ public class PetraProgram {
                     LOG.debug("after PROVE_KASE applied to "+graph.clazz.getSimpleName()+" kase:"+kaseNo);
                     LOG.debug(k.toString());
                 } else {
+                    Set<List<String>> a = new HashSet<>(postSet);
+                    Set<List<String>> b = new HashSet<>(graph.symbolicStates.get(kaseNo).getSymbolicStates());
+                    b.removeAll(a);
+                    LOG.info("Postcondition does not cover: "+b.toString()
+                            .replaceAll("\\[\\[","[\n [")
+                            .replaceAll("\\],","],\n")
+                            .replaceAll("\\]\\]","]\n]")
+                    );
                     graph.status.put(k,false);
                 }
             }
@@ -2173,7 +2237,7 @@ public class PetraProgram {
             LOG.debug(c.getMethodsByName("accept").get(0).getParameter(0).getType().asClassOrInterfaceType().getName().toString()+": cannot find class in local package "+
                     cuOfGraphContainingType.compilationUnit.getPackageDeclaration().get().getNameAsString());
         } else {
-            List<MethodDeclaration> list = dataTypeInfoMap.get(all.get(clazz).clazz).methodDeclarations;
+            Set<MethodDeclaration> list = dataTypeInfoMap.get(all.get(clazz).clazz).methodDeclarations;
             int u = 9;
         }
 
@@ -2342,7 +2406,7 @@ public class PetraProgram {
     }
 
     public static boolean checkForPreOrPostsAgainstView(Set<String> presOrposts, Class inter, boolean trueForEqualsFalseforContains){
-        Set<String> booleanMethodNames = Arrays.asList(inter.getDeclaredMethods()).stream().filter(m->m.getReturnType().equals(boolean.class)).map(m->m.getName()).collect(Collectors.toSet());
+        Set<String> booleanMethodNames = Arrays.asList(inter.getMethods()).stream().filter(m->m.getReturnType().equals(boolean.class)).map(m->m.getName()).collect(Collectors.toSet());
         if (trueForEqualsFalseforContains){
             if (booleanMethodNames.equals(presOrposts)){
                 return true;

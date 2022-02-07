@@ -1,6 +1,6 @@
 package com.cognitionbox.petra;
 
-import com.cognitionbox.petra.examples.clothingchoice.ChooseClothing;
+import com.cognitionbox.petra.examples.clothingchoice.ChooseClothingL1;
 import com.cognitionbox.petra.verification.Verification;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -15,7 +15,7 @@ public class ClothingChoiceVerification extends Verification {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection tasks() {
-        setRoot(ChooseClothing.class);
+        setRoot(ChooseClothingL1.class);
         return Verification.tasks();
     }
 }

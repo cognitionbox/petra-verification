@@ -2,13 +2,9 @@ package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.View;
 
-@View public interface System {
+@View public interface SystemL2 extends SystemBase {
     Clothing clothing();
     DayAndWeather dayAndWeather();
-
-//    default boolean clothingUndecided(){
-//        return clothing().undecided();
-//    }
 
     default boolean sunnyWeekdayUndecidedClothing(){
         return dayAndWeather().sunnyWeekday() && clothing().undecided();
@@ -57,6 +53,6 @@ import com.cognitionbox.petra.annotations.View;
     }
 
     default boolean moderateWeekdayAnyClothing(){
-        return dayAndWeather().moderateWeekend() && !clothing().undecided();
+        return dayAndWeather().moderateWeekday() && !clothing().undecided();
     }
 }
