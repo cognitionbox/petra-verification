@@ -1783,6 +1783,7 @@ public class PetraProgram {
                 P = resolveImplementation(k.asMethodCallExpr().getArgument(0).toString(), theViewClass);
             } else if (preconditionDotCount==2){
                 P = k.asMethodCallExpr().getArgument(0).toString().split("->")[1].trim().split("\\.",2)[1];
+                throw new IllegalArgumentException("precondition cannot go this deep!");
             } else if (preconditionDotCount>2){
                 throw new IllegalArgumentException("precondition cannot go this deep!");
             }
@@ -1793,6 +1794,7 @@ public class PetraProgram {
                 Q = resolveImplementation(k.asMethodCallExpr().getArgument(1).toString(), theViewClass);
             } else if (postconditionDotCount==2){
                 Q = k.asMethodCallExpr().getArgument(1).toString().split("->")[1].trim().split("\\.",2)[1];
+                throw new IllegalArgumentException("precondition cannot go this deep!");
             } else if (postconditionDotCount>2){
                 throw new IllegalArgumentException("postcondition cannot go this deep!");
             }
