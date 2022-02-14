@@ -253,6 +253,20 @@ public class PetraProgram {
         return null;
     }
 
+    static private boolean overridesMethodFromBaseInterface(Class clazz){
+        if (clazz.getInterfaces().length>0){
+            Class base = clazz.getInterfaces()[0];
+            for (Method c : clazz.getDeclaredMethods()){
+                for (Method b : base.getDeclaredMethods()){
+                    if (c.equals(b)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     static boolean addDataTypeInfo2(CompilationUnit cu, Class clazz, ClassOrInterfaceDeclaration c) throws ClassNotFoundException {
                 int i = 0;
                 // field methods need to be declared in alphabetical order
@@ -448,6 +462,16 @@ public class PetraProgram {
                 }
             }
         }
+        for (MethodDeclarationAndSet m : methodDeclarationAndSets){
+            if (m.set.isEmpty()){
+                LOG.info(m.methodDeclaration.getNameAsString()+" is empty.");
+                isSound = false;
+            }
+        }
+        if (overridesMethodFromBaseInterface(clazz)){
+            LOG.info(clazz.getSimpleName()+" overrides methods from "+clazz.getInterfaces()[0].getSimpleName());
+            isSound = false;
+        }
         if (isComplete){
             List t = truth.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
             List a = all.stream().map(e->e.toString()).sorted().collect(Collectors.toList());
@@ -487,7 +511,7 @@ public class PetraProgram {
         if (isSound){
             LOG.info("View is sound as there are no overlaps.");
         } else {
-            LOG.info("View is not sound as there are overlaps.");
+            LOG.info("View is not sound as there are overlaps or there are empty sets or view default boolean methods override base interface methods.");
         }
 //        if (!isComplete || !isSound){
 //            throw new IllegalStateException("not sound and/or not complete.");
@@ -839,6 +863,129 @@ public class PetraProgram {
                     LOG.debug("");
                 }
             }
+        }
+    }
+
+    static void rewriteGraphKaseJoinParsOrSeperatedSeqsToSeq(Expression kase, CompilationUnitWithData cu, int count) {
+        boolean beforeLogged = false;
+        // go through step instructions
+        if (!beforeLogged){
+            LOG.debug("before JOIN_PARS_OR_SEPARATED_SEQ applied to "+cu.clazz.getSimpleName()+" kase:"+count);
+            LOG.debug(kase.toString());
+            beforeLogged = true;
+        }
+
+        Class dataType = Arrays.asList(cu.clazz.getMethods()).stream().filter(m->!m.getParameterTypes()[0].equals(Object.class) && m.getName().equals("accept")).findFirst().get().getParameterTypes()[0];
+        Set<String> fields = Arrays.asList(dataType.getDeclaredMethods())
+                .stream()
+                .filter(m->!m.isDefault() && m.getParameterTypes().length==0 && !m.getReturnType().equals(Void.class))
+                .map(m->m.getName())
+                .collect(Collectors.toSet());
+
+        MethodCallExpr seq = null;
+        MethodCallExpr kases = null;
+        boolean started = false;
+        int startedIndex = 0;
+        StringBuilder preConjunction = null;
+        StringBuilder postConjunction = null;
+        int i = 0;
+        List<Statement> toRemove = new ArrayList<>();
+        for (Statement stepInstruction : kase
+                .asMethodCallExpr()
+                .getArgument(2)
+                .asLambdaExpr()
+                .getBody()
+                .asBlockStmt()
+                .getStatements()) {
+            if (!started && (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join") ||
+                    (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("seq") &&
+                            stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).toString().contains(".")))
+            ){
+                preConjunction = new StringBuilder();
+                postConjunction = new StringBuilder();
+
+                seq = new MethodCallExpr("seq");
+                seq.addArgument(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,dataType.getSimpleName()));
+                BlockStmt newBlockStmt = new BlockStmt();
+                LambdaExpr newLambdaExpr = new LambdaExpr(new Parameter(), newBlockStmt);
+                kases = new MethodCallExpr("kases");
+                newBlockStmt.addStatement(kases);
+
+                seq.addArgument(newLambdaExpr);
+
+                if (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join")){
+                    int a = 0;
+                    for (Expression par : stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
+                        if (a==0){
+                            a++;
+                            continue;
+                        } else if (a==1){
+                            preConjunction.append("("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
+                            postConjunction.append("("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
+                            fields.remove(par.asMethodCallExpr().getArguments().get(0).toString().split("->")[1].split("\\.")[1].replaceAll("\\(\\)","").trim());
+                        } else {
+                            preConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
+                            postConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
+                            fields.remove(par.asMethodCallExpr().getArguments().get(0).toString().split("->")[1].split("\\.")[1].replaceAll("\\(\\)","").trim());
+                        }
+                        a++;
+                    }
+                } else if (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("seq") &&
+                        stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).toString().contains(".")){
+                    preConjunction.append("("+stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
+                    postConjunction.append("("+stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
+                    fields.remove(stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(0).toString().split("\\.")[1].replaceAll("\\(\\)","").trim());
+                }
+                started = true;
+                startedIndex = i;
+            } else if (started && stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join")){
+                int a = 0;
+                for (Expression par : stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
+                    if (a==0){
+                        a++;
+                        continue;
+                    } else {
+                        preConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
+                        postConjunction.append("&("+par.asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
+                        fields.remove(par.asMethodCallExpr().getArguments().get(0).toString().split("->")[1].split("\\.")[1].replaceAll("\\(\\)","").trim());
+                    }
+                    a++;
+                }
+            } else if (started &&
+                    stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("seq") &&
+                    stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).toString().contains(".")
+            ){
+                preConjunction.append("&("+stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(0).toString().split("->")[1].replaceAll(" ","")+")");
+                postConjunction.append("&("+stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("->")[1].replaceAll(" ","")+")");
+                fields.remove(stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().get(0).toString().split("\\.")[1].replaceAll("\\(\\)","").trim());
+            }
+            toRemove.add(stepInstruction);
+            i++;
+        }
+
+        if (fields.size()==0){
+            for (Statement s : toRemove){
+                s.remove();
+            }
+            kase.asMethodCallExpr()
+                    .getArgument(2)
+                    .asLambdaExpr()
+                    .getBody()
+                    .asBlockStmt().addStatement(startedIndex,seq);
+            MethodCallExpr kse = new MethodCallExpr("kase");
+            kse.addArgument(preConjunction.toString());
+            kse.addArgument(postConjunction.toString());
+            kse.addArgument(new LambdaExpr(new Parameter(), new BlockStmt()));
+            kse.addArgument("ASSUMED");
+            kases.addArgument(kse);
+            //break; // hack!!! need to find out why we are getting ConcurrentModificationException without this.
+        }
+
+        if (beforeLogged){
+            LOG.info("JOIN_PARS_OR_SEPARATED_SEQ applied "+cu.clazz.getSimpleName()+" kase:"+count);
+            LOG.debug("after JOIN_PARS_OR_SEPARATED_SEQ applied to "+cu.clazz.getSimpleName()+" kase:"+count);
+            LOG.debug(kase.toString());
+            LOG.debug("");
         }
     }
 
@@ -1610,9 +1757,10 @@ public class PetraProgram {
             rewriteGraphKaseStepsToEdges(kase,graphTerm,count);
             rewriteGraphKaseJoinParStepsToEdges(kase,graphTerm,count);
             rewriteStepsWithForall(kase,graphTerm,count);
-            rewriteGraphKaseSeperatedStepsToNonSeperatedSteps(kase,graphTerm,count);
+            //rewriteGraphKaseSeperatedStepsToNonSeperatedSteps(kase,graphTerm,count);
             rewriteJoinForallParSteps(kase,graphTerm,count);
-            rewriteGraphKaseJoinParsToSeq(kase,graphTerm,count);
+            //rewriteGraphKaseJoinParsToSeq(kase,graphTerm,count);
+            rewriteGraphKaseJoinParsOrSeperatedSeqsToSeq(kase,graphTerm,count);
             //checkKasePreAndPostConditionsFallInsideADistinctView(kase,graphTerm,count);
             rewriteKase(
                     graphTerm.clazz.isAnnotationPresent(Infinite.class) &&
@@ -2296,7 +2444,7 @@ public class PetraProgram {
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, condition).replaceAll("_"," ")
                 .split("->",2)[1]
                 .replaceAll("&&","and")
-                .replaceAll("\\^","or")
+                .replaceAll("\\^","or \n")
                 .replaceAll(",","")
                 .replaceAll("->",", where each")
                 .replaceAll("\\(","")
@@ -2315,13 +2463,13 @@ public class PetraProgram {
                 Statement kases = graph.getMethodsByName("accept").get(0).getBody().get().getStatement(0);
                 sb.append("\n");
                 startingLetter++;
-                sb.append(startingLetter+". "+CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,name).replaceAll("_"," ")+":\n\n");
+                sb.append("Flow "+startingLetter+" - "+CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,name).replaceAll("_"," ")+":\n\n");
                 int i = 0;
                 for (Expression a : kases.asExpressionStmt().getExpression().asMethodCallExpr().getArguments()){
                     if (i==0){
 
                     } else {
-                        sb.append(i+". Given"+formatCondition(a.asMethodCallExpr().getArguments().get(0).toString())+", ");
+                        sb.append("Case "+i+".\nGiven"+formatCondition(a.asMethodCallExpr().getArguments().get(0).toString())+",\n");
                         if (!clazz.isAnnotationPresent(Edge.class)){
                             int j = 0;
                             for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
@@ -2329,7 +2477,7 @@ public class PetraProgram {
                                 if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
                                     String firstParOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArgument(1).asObjectCreationExpr().getType().getName().toString();
                                     StringBuilder steps = new StringBuilder();
-                                    steps.append(firstParOrParrStep);
+                                    steps.append(""+firstParOrParrStep);
                                     for (int arg=2;arg<=step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArguments().size();arg++){
                                         String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).asObjectCreationExpr().getType().getName().toString();
                                         steps.append(" in parallel with "+parOrParrStep);
@@ -2345,16 +2493,18 @@ public class PetraProgram {
                                     stepName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, stepName);
                                     stepName = stepName.replaceAll("_"," ");
                                     if (j==0){
-                                        sb.append(stepName);
+                                        sb.append(""+stepName);
                                     } else {
-                                        sb.append(", then "+stepName);
+                                        sb.append(",\nthen "+stepName);
                                     }
                                 }
                                 j++;
                             }
                             sb.append(", "); // \n
+                            sb.append("\nthen"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
+                        } else {
+                            sb.append("then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
                         }
-                        sb.append("then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
                     }
                     i++;
                 }
@@ -2568,7 +2718,7 @@ public class PetraProgram {
 
         StringBuilder sb = new StringBuilder();
         startingLetter++;
-        sb.append(startingLetter+". "+clazz.getSimpleName().toLowerCase()+":\n\n");
+        sb.append("Data "+startingLetter+" - "+clazz.getSimpleName().toLowerCase()+":\n\n");
         List<Method> viewProps = Arrays.asList(clazz.getMethods()).stream().filter(m -> m.isDefault() && m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
         Set<String> viewPropsNamesSet = viewProps.stream().map(m -> m.getName()).collect(Collectors.toSet());
         if (fields.size() == 1 && !fields.get(0).isDefault() && Collection.class.isAssignableFrom(fields.get(0).getReturnType())) {
@@ -2586,7 +2736,7 @@ public class PetraProgram {
                 impl = impl.replaceAll(var+"\\.","");
 
                 String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll("_"," ");
-                sb.append(no+". "+methodInEnglish+"" + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
+                sb.append("Partition "+no+". "+methodInEnglish+"" + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
                         .replaceAll("\\!", "not ")
                         .replaceAll("\\^", " xor ")
                         .replaceAll("\\&\\&", " and ")
@@ -2602,7 +2752,7 @@ public class PetraProgram {
                 impl = impl.replaceAll("\\(", "").replaceAll("\\)", "");
                 impl = impl.replaceAll("\\."," ");
                 String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll("_"," ");
-                sb.append(no+". "+methodInEnglish + ", means, "+lowerCamelToEnglishForEachInSplit(impl)
+                sb.append("Partition "+no+". "+methodInEnglish + ", means, "+lowerCamelToEnglishForEachInSplit(impl)
                         .replaceAll("\\!", "not ")
                         .replaceAll("\\^", " or ")
                         .replaceAll("\\&\\&", " and ")
