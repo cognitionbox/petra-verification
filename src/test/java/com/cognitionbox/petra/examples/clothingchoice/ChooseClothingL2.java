@@ -21,7 +21,7 @@ public class ChooseClothingL2 implements Consumer<SystemL2> {
                             system.rainyWeekendRainCoatClothing() ^
                             system.moderateWeekendNotSmartJacketClothing(),
                     system->{
-                        seq((SystemImpl)system, new ChooseClothingL3());
+                        seq(system, new ChooseClothingL3());
                     })
                 );
     }

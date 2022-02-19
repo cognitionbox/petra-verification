@@ -66,6 +66,8 @@ public class PetraProgram {
     static final String rootDir = new File("./").getPath().toString();//"D:\\git\\private\\petra2\\src\\main\\java\\com\\cognitionbox\\petra2\\examples\\tradingsystem4";
     static String entryPointPackageName;// = "com.cognitionbox.petra2.examples.tradingsystem4";
     static String rootGraphName;// = "RunTradingSystem";
+    static final Map<Class,Class> viewImplementation = new HashMap<>();
+    static final Map<Class,Integer> viewImplementationCount = new HashMap<>();
     static final Map<Class,CompilationUnitWithData> all = new HashMap<>();
     static final Map<Class,DataTypeInfo> dataTypeInfoMap = new HashMap<>();
     static CompilationUnit programTerm;
@@ -101,6 +103,17 @@ public class PetraProgram {
                                     }
                                     all.put(clazz,cu);
                                 } else {
+                                    // accumulates the number of implementations for each @View
+                                    for (Class c : clazz.getInterfaces()){
+                                        if (c.isAnnotationPresent(View.class)){
+                                            if (viewImplementationCount.containsKey(c)){
+                                                viewImplementationCount.put(c,viewImplementationCount.get(c));
+                                            } else {
+                                                viewImplementation.put(c,clazz);
+                                                viewImplementationCount.put(c,1);
+                                            }
+                                        }
+                                    }
                                     CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
                                     all.put(clazz,cu);
                                 }
@@ -109,9 +122,20 @@ public class PetraProgram {
                             LOG.debug("Cannot process: "+e.getMessage());
                         }
                     });
+            if (viewImplementationCount.values().stream().anyMatch(i->i>1)){
+                throw new IllegalStateException("Cannot have more than one implementation per view.");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean isViewOfImplementation(Class impl, Class view){
+        return Arrays.asList(impl.getInterfaces()).stream().anyMatch(i->i.isAnnotationPresent(View.class) && i.equals(view));
+    }
+
+    private static Class getImplementationOfView(Class view){
+        return viewImplementation.get(view);
     }
 
     static boolean verifyViews2() {
@@ -2086,6 +2110,13 @@ public class PetraProgram {
                     theCastClass = getClassIfSimpleNameIsUniqueInPackage(
                             graph.compilationUnit.getPackageDeclaration().get().getNameAsString(),
                             castClass);
+                    if (!theCastClass.isAnnotationPresent(View.class)){
+                        throw new IllegalStateException("the cast class must be a view.");
+                    }
+                    Class impl = getImplementationOfView(theViewClass);
+                    if (!isViewOfImplementation(impl,theCastClass)){
+                        throw new IllegalStateException("the cast view must also be a view of the graph view's implementation.");
+                    }
                 }
 
                 String siP = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
