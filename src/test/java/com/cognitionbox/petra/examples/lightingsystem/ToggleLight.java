@@ -18,6 +18,8 @@ public class ToggleLight implements Consumer<Light> {
                     join(light,
                             par(light_->light_.button(),new SwitchOn()),
                             par(light_->light_.power(),new PowerOn()));
+                    seq(light, new LightOff());
+                    seq(light, new LightOn());
                     seq(light, new PrintLightOn());
                 }),
                 kase(light->light.on(), light->light.off(),light->{
