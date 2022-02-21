@@ -173,7 +173,7 @@ public class Verification {
             ProveViewSoundnessAndCompletenessTask soundnessAndCompletenessTask = (ProveViewSoundnessAndCompletenessTask)task;
             ClassOrInterfaceDeclaration c = soundnessAndCompletenessTask.view.compilationUnit
                     .getInterfaceByName(soundnessAndCompletenessTask.view.clazz.getSimpleName()).get();
-            boolean result =  PetraProgram.addDataTypeInfo2(soundnessAndCompletenessTask.view.compilationUnit,soundnessAndCompletenessTask.view.clazz,c);
+            boolean result =  PetraProgram.isViewSoundAndComplete(soundnessAndCompletenessTask.view.compilationUnit,soundnessAndCompletenessTask.view.clazz,c);
             if (!result){
                 fail();
             } else {
