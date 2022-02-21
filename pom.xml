@@ -6,7 +6,7 @@
 
     <groupId>io.cognitionbox.petra</groupId>
     <artifactId>petra-verification</artifactId>
-    <version>alpha-SNAPSHOT</version>
+    <version>0.1.0-alpha</version>
     <build>
         <plugins>
             <plugin>
