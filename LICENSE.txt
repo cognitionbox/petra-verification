@@ -2,7 +2,7 @@
  * CONFIDENTIAL - COGNITION BOX LIMITED
  *  __________________
  *
- *  © 2020 Cognition Box Limited
+ *  © 2016-2022 Cognition Box Limited
  *  All Rights Reserved.
  *
  * NOTICE:
