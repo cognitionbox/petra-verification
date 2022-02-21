@@ -31,7 +31,6 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.Pair;
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.Comparators;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.ClassPath;
 import com.itextpdf.text.*;
@@ -148,7 +147,7 @@ public class PetraProgram {
                 !c.clazz.isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
             ClassOrInterfaceDeclaration c = cu.compilationUnit.getInterfaceByName(cu.clazz.getSimpleName()).get();
             try {
-                soundAndComplete = soundAndComplete && addDataTypeInfo2(cu.compilationUnit,cu.clazz,c);
+                soundAndComplete = soundAndComplete && isViewSoundAndComplete(cu.compilationUnit,cu.clazz,c);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -291,7 +290,7 @@ public class PetraProgram {
         return false;
     }
 
-    static boolean addDataTypeInfo2(CompilationUnit cu, Class clazz, ClassOrInterfaceDeclaration c) throws ClassNotFoundException {
+    static boolean isViewSoundAndComplete(CompilationUnit cu, Class clazz, ClassOrInterfaceDeclaration c) throws ClassNotFoundException {
                 int i = 0;
                 // field methods need to be declared in alphabetical order
         List<Method> fields = Arrays.asList(clazz.getMethods()).stream().sorted(Comparator.comparing(Method::getName)).filter(m->!m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
