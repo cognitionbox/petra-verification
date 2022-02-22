@@ -1,17 +1,39 @@
-/*******************************************************************************
- * CONFIDENTIAL - COGNITION BOX LIMITED
- *  __________________
- *
- *  © 2016-2022 Cognition Box Limited
- *  All Rights Reserved.
- *
- * NOTICE:
- * All information contained herein is, and remains the property of
- * Cognition Box Limited and its licensees, if any. The intellectual
- * and technical concepts contained herein are proprietary to
- * Cognition Box Limited and its licensees and may be covered
- * by patents in process, and are protected by trade secret or
- * copyright law. Dissemination of this information or reproduction
- * of this material is strictly forbidden unless prior written
- * permission is obtained from Cognition Box Limited.
- ******************************************************************************/
+ /*
+  * CONFIDENTIAL - COGNITION BOX LTD.
+  *
+  * Copyright 2016-2022 Cognition Box Ltd. - All Rights Reserved
+  *
+  * This file is part of "petra-verification-0.1.0-alpha.jar".
+  * "petra-verification-0.1.0-alpha.jar" is owned by:
+  *
+  * Cognition Box Ltd. (10194162)
+  * 9 Grovelands Road,
+  * Palmers Green,
+  * London, N13 4RJ
+  * England.
+  *
+  * All information contained herein is, and remains the property of
+  * Cognition Box Ltd. The intellectual and technical concepts contained
+  * herein are proprietary to Cognition Box Ltd. and may be covered
+  * by patents in process, and are protected by trade secret or
+  * copyright law. Dissemination of this information or reproduction
+  * of this material is strictly forbidden unless prior written
+  * permission is obtained from Cognition Box Ltd.
+  *
+  * "petra-verification-0.1.0-alpha.jar" includes trade secrets of Cognition Box Ltd.
+  * In order to protect "petra-verification-0.1.0-alpha.jar", You shall not decompile, reverse engineer, decrypt,
+  * extract or disassemble "petra-verification-0.1.0-alpha.jar" or otherwise reduce or attempt to reduce any software
+  * in "petra-verification-0.1.0-alpha.jar" to source code form. You shall ensure, both during and
+  * (if you still have possession of "petra-verification-0.1.0-alpha.jar") after the performance of this Agreement,
+  * that (i) persons who are not bound by a confidentiality agreement consistent with this Agreement
+  * shall not have access to "petra-verification-0.1.0-alpha.jar" and (ii) persons who are so bound are put on written notice that
+  * "petra-verification-0.1.0-alpha.jar" contains trade secrets, owned by and proprietary to Cognition Box Ltd.
+  *
+  * "petra-verification-0.1.0-alpha.jar" is Proprietary and Confidential.
+  * Unauthorized copying of "petra-verification-0.1.0-alpha.jar" files, via any medium is strictly prohibited.
+  *
+  * "petra-verification-0.1.0-alpha.jar" can not be copied and/or distributed without the express
+  * permission of Cognition Box Ltd.
+  *
+  * "petra-verification-0.1.0-alpha.jar" is written by Aran Hakki.
+  */
