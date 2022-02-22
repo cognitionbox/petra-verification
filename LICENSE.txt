@@ -1,6 +1,4 @@
  /*
-  * CONFIDENTIAL - COGNITION BOX LTD.
-  *
   * Copyright 2016-2022 Cognition Box Ltd. - All Rights Reserved
   *
   * This file is part of "petra-verification-0.1.0-alpha.jar".
