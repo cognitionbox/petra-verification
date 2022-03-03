@@ -2192,6 +2192,7 @@ public class PetraProgram {
                 .getBody()
                 .asBlockStmt()
                 .getStatements().size();
+        // add false && in order to disable this check so that developers must code a state change
         if (k.asMethodCallExpr().getArgument(0).equals(k.asMethodCallExpr().getArgument(1))){
             LOG.debug("before PROVE_KASE applied to "+graph.clazz.getSimpleName()+" kase:"+kaseNo);
             LOG.debug(k.toString());
