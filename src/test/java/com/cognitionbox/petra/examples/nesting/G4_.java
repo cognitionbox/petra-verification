@@ -1,14 +1,13 @@
 package com.cognitionbox.petra.examples.nesting;
 
-import com.cognitionbox.petra.annotations.Edge;
-
-import java.util.function.Consumer;
+import com.cognitionbox.petra.lang.step.PEdge;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-@Edge
-public class G4_ implements Consumer<SomeView2> {
+
+public class G4_ implements PEdge<SomeView2> {
     @Override
     public void accept(SomeView2 f) {
         kases(f,

@@ -1,14 +1,14 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 
 import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-@Edge
-public class ChooseClothingL3 implements Consumer<SystemL2> {
+
+public class ChooseClothingL3 implements PEdge<SystemL2> {
     @Override
     public void accept(SystemL2 s) {
         kases(s,

@@ -1,10 +1,10 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
-import java.util.function.Consumer;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class DeleteIfExpired implements Consumer<License> {
+public class DeleteIfExpired implements PGraph<License> {
     @Override
     public void accept(License l) {
         kases(l,

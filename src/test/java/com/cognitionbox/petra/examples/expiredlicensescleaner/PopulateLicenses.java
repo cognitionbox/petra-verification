@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +12,7 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 // this level cares about emptyness or (expired ^ not expired) but not deleted
-@Edge public class PopulateLicenses implements Consumer<Licenses> {
+ public class PopulateLicenses implements PEdge<Licenses> {
     @Override
     public void accept(Licenses l) {
         kases(l,

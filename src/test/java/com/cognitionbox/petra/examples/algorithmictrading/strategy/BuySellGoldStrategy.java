@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.examples.algorithmictrading.strategy;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.examples.algorithmictrading.system.TradingSystem;
 import com.cognitionbox.petra.lang.primitives.impls.PBigDecimal;
 
@@ -10,8 +10,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 import static java.math.BigDecimal.ONE;
 
-@Edge
-public class BuySellGoldStrategy implements Consumer<TradingSystem> {
+
+public class BuySellGoldStrategy implements PEdge<TradingSystem> {
     @Override
     public void accept(TradingSystem t) {
         kases(t,

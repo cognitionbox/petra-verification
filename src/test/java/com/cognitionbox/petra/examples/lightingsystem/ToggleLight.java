@@ -1,7 +1,7 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
 
-import java.util.function.Consumer;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
@@ -10,7 +10,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
  * seq(l.p(),new PowerOn());
  */
 
-public class ToggleLight implements Consumer<Light> {
+public class ToggleLight implements PGraph<Light> {
     @Override
     public void accept(Light l) {
         kases(l,

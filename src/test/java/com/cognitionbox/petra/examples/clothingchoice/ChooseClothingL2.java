@@ -1,10 +1,10 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
-import java.util.function.Consumer;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class ChooseClothingL2 implements Consumer<SystemL2> {
+public class ChooseClothingL2 implements PGraph<SystemL2> {
     @Override
     public void accept(SystemL2 s) {
         kases(s,

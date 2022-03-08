@@ -40,9 +40,10 @@
 
 package com.cognitionbox.petra.verification;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.annotations.Infinite;
 import com.cognitionbox.petra.annotations.Primative;
+import com.cognitionbox.petra.lang.step.PGraph;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -107,7 +108,7 @@ public class Verification {
         PetraProgram.LOG.debug("views: "+PetraProgram.dataTypeInfoMap);
 
         //tasks.addAll(PetraProgram.all.values().stream().map(c->new ParseFileTask(c)).collect(Collectors.toList()));
-        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class)).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
             String term2 = cu.compilationUnit.toString();
             term2 = term2.replaceAll("empty empty","i");
             CompilationUnit programTerm2 = new JavaParser().parse(term2).getResult().get();
@@ -245,7 +246,7 @@ public class Verification {
     }
 
     protected static void setRoot(Class<? extends Consumer> root) {
-        if (root.isAnnotationPresent(Edge.class)){
+        if (PEdge.class.isAssignableFrom(root)){
             throw new UnsupportedOperationException();
         }
         PetraProgram.rootGraphName = root.getSimpleName();

@@ -1,14 +1,14 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 
 import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-@Edge
-public class LightOff implements Consumer<Light> {
+
+public class LightOff implements PEdge<Light> {
     @Override
     public void accept(Light l) {
         kases(l,

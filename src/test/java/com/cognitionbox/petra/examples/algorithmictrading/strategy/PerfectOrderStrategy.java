@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.examples.algorithmictrading.strategy;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.examples.algorithmictrading.marketdata.Quote;
 import com.cognitionbox.petra.examples.algorithmictrading.marketdata.QuoteImpl;
 import com.cognitionbox.petra.examples.algorithmictrading.system.TradingSystem;
@@ -12,8 +12,8 @@ import static com.cognitionbox.petra.lang.Petra.*;
 import static com.cognitionbox.petra.lang.primitives.PBigDecimals.TWO;
 import static java.math.BigDecimal.ONE;
 
-@Edge
-public class PerfectOrderStrategy implements Consumer<TradingSystem> {
+
+public class PerfectOrderStrategy implements PEdge<TradingSystem> {
     @Override
     public void accept(TradingSystem t) {
         kases(t,

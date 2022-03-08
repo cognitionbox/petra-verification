@@ -1,13 +1,13 @@
 package com.cognitionbox.petra.examples.algorithmictrading.marketdata;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 
 import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-@Edge public class UpdateDecisionQuoteUsingHistoricalCsvData implements Consumer<DecisionWithQuotes> {
+ public class UpdateDecisionQuoteUsingHistoricalCsvData implements PEdge<DecisionWithQuotes> {
     @Override
     public void accept(DecisionWithQuotes d) {
         kases(d,

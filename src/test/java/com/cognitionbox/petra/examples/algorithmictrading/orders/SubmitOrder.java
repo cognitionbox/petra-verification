@@ -1,6 +1,6 @@
 package com.cognitionbox.petra.examples.algorithmictrading.orders;
 
-import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.examples.algorithmictrading.system.TradingSystem;
 
 import java.util.function.Consumer;
@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-@Edge
-public class SubmitOrder implements Consumer<TradingSystem> {
+
+public class SubmitOrder implements PEdge<TradingSystem> {
     @Override
     public void accept(TradingSystem ts) {
         kases(ts,

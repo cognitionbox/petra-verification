@@ -1,14 +1,11 @@
 package com.cognitionbox.petra.examples.algorithmictrading.marketdata;
 
-import com.cognitionbox.petra.annotations.Graph;
 import com.cognitionbox.petra.examples.algorithmictrading.system.ModeWithDecisionsWithQuotes;
-
-import java.util.function.Consumer;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-@Graph
-public class UpdateDecisionQuote implements Consumer<ModeWithDecisionsWithQuotes> {
+public class UpdateDecisionQuote implements PGraph<ModeWithDecisionsWithQuotes> {
     @Override
     public void accept(ModeWithDecisionsWithQuotes m) {
         kases(m,

@@ -41,6 +41,8 @@
 package com.cognitionbox.petra.verification;
 
 import com.cognitionbox.petra.annotations.*;
+import com.cognitionbox.petra.lang.step.PEdge;
+import com.cognitionbox.petra.lang.step.PGraph;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
@@ -116,10 +118,10 @@ public class PetraProgram {
                                 }
                                 if (Consumer.class.isAssignableFrom(clazz)){
                                     CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
-                                    if (clazz.isAnnotationPresent(Edge.class) && Consumer.class.isAssignableFrom(clazz)){
+                                    if (PEdge.class.isAssignableFrom(clazz) && Consumer.class.isAssignableFrom(clazz)){
                                         cu.isEdge = true;
                                         cu.isProved = true;
-                                    } else if (Consumer.class.isAssignableFrom(clazz)){
+                                    } else if (PGraph.class.isAssignableFrom(clazz) && Consumer.class.isAssignableFrom(clazz)){
                                         cu.isEdge = false;
                                     }
                                     all.put(clazz,cu);
@@ -848,7 +850,7 @@ public class PetraProgram {
     }
 
     static void rewriteCasts() throws ClassNotFoundException {
-        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class)).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
             int count = 0;
             for (Expression kase : cu.compilationUnit
                     .getClassByName(cu.clazz.getSimpleName()).get()
@@ -2393,7 +2395,7 @@ public class PetraProgram {
         //System.out.println(programTerm);
         //rewriteRootProgramTerm(programTerm);
         //System.out.println(programTerm);
-        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class)).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
             String term2 = cu.compilationUnit.toString();
             term2 = term2.replaceAll("empty empty","i");
             CompilationUnit programTerm2 = new JavaParser().parse(term2).getResult().get();
@@ -2401,7 +2403,7 @@ public class PetraProgram {
             rewriteGraphTerm(cu);
             //rewriteGraphTerm(new CompilationUnitWithData(cu.clazz, programTerm2));
         }
-        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class)).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : all.values().stream().filter(c->Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
             LOG.debug(cu.clazz+" PROVED="+ (!cu.status.values().isEmpty() && cu.status.values().stream().allMatch(proved->proved==true)));
             int i = 0;
             for (Expression k : cu.kases){
@@ -2421,7 +2423,7 @@ public class PetraProgram {
 //        }
 
         if (all.values().stream()
-                .filter(c->Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class))
+                .filter(c->Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz))
                 .allMatch(cu ->!cu.status.values().isEmpty() && cu.status.values().stream().allMatch(proved->proved==true))){
             convertToControlledEnglish();
         }
@@ -2523,7 +2525,7 @@ public class PetraProgram {
 
                     } else {
                         sb.append("Case "+i+".\nGiven"+formatCondition(a.asMethodCallExpr().getArguments().get(0).toString())+",\n");
-                        if (!clazz.isAnnotationPresent(Edge.class)){
+                        if (!PEdge.class.isAssignableFrom(clazz)){
                             int j = 0;
                             for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                 String stepName = null;
@@ -2567,7 +2569,7 @@ public class PetraProgram {
                     if (i==0){
 
                     } else {
-                        if (!clazz.isAnnotationPresent(Edge.class)){
+                        if (!PEdge.class.isAssignableFrom(clazz)){
                             for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                 String stepName = null;
                                 if (step.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==3){
