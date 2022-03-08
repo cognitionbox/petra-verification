@@ -6,53 +6,23 @@ import com.cognitionbox.petra.annotations.View;
     Clothing clothing();
     DayAndWeather dayAndWeather();
 
-    default boolean sunnyWeekdayUndecidedClothing(){
-        return dayAndWeather().sunnyWeekday() && clothing().undecided();
-    }
-
     default boolean rainyWeekdayUndecidedClothing(){
-        return dayAndWeather().rainyWeekday() && clothing().undecided();
-    }
-
-    default boolean moderateWeekdayUndecidedClothing(){
-        return dayAndWeather().moderateWeekday() && clothing().undecided();
-    }
-
-
-    default boolean sunnyWeekendUndecidedClothing(){
-        return dayAndWeather().sunnyWeekend() && clothing().undecided();
+        return clothing().undecided() && dayAndWeather().rainyWeekday();
     }
 
     default boolean rainyWeekendUndecidedClothing(){
-        return dayAndWeather().rainyWeekend() && clothing().undecided();
+        return clothing().undecided() && dayAndWeather().rainyWeekend();
     }
 
-    default boolean moderateWeekendUndecidedClothing(){
-        return dayAndWeather().moderateWeekend() && clothing().undecided();
+    default boolean plainWeekendUndecidedClothing(){
+        return dayAndWeather().plainWeekend() && clothing().undecided();
     }
 
-
-    default boolean sunnyWeekendTshirtClothing(){
-        return dayAndWeather().sunnyWeekend() && clothing().Tshirt();
+    default boolean notRainyWeekdayUndecidedClothing(){
+        return dayAndWeather().notRainyWeekday() && clothing().undecided();
     }
 
-    default boolean rainyWeekendRainCoatClothing(){
-        return dayAndWeather().rainyWeekend() && clothing().rainCoat();
-    }
-
-    default boolean moderateWeekendNotSmartJacketClothing(){
-        return dayAndWeather().moderateWeekend() && !clothing().smartJacket() && !clothing().undecided();
-    }
-
-    default boolean sunnyWeekdayHatClothing(){
-        return dayAndWeather().sunnyWeekday() && clothing().hat();
-    }
-
-    default boolean rainyWeekdaySmartJacketClothing(){
-        return clothing().smartJacket() && (dayAndWeather().rainyWeekday() && dayAndWeather().moderateWeekday());
-    }
-
-    default boolean moderateWeekdayAnyClothing(){
-        return dayAndWeather().moderateWeekday() && !clothing().undecided();
+    default boolean sunnyWeekendUndecidedClothing(){
+        return dayAndWeather().sunnyWeekend() && clothing().undecided();
     }
 }

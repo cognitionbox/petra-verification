@@ -4,14 +4,17 @@ import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.lang.primitives.PValue;
 
 @Primative public interface Weather {
-    PValue<WeatherEnum> weather();
+    PValue<WeatherEnum> weatherEnum();
+    default void setSunny(){weatherEnum().set(WeatherEnum.SUNNY);}
+    default void setRainy(){weatherEnum().set(WeatherEnum.RAINY);}
+    default void setPlain(){weatherEnum().set(WeatherEnum.PLAIN);}
     default boolean sunny(){
-        return weather().get()==WeatherEnum.S;
+        return weatherEnum().get()==WeatherEnum.SUNNY;
     }
     default boolean rainy(){
-        return weather().get()==WeatherEnum.R;
+        return weatherEnum().get()==WeatherEnum.RAINY;
     }
-    default boolean moderate(){
-        return weather().get()==WeatherEnum.P;
+    default boolean plain(){
+        return weatherEnum().get()==WeatherEnum.PLAIN;
     }
 }
