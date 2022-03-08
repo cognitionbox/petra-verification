@@ -5,21 +5,29 @@ import com.cognitionbox.petra.lang.primitives.PValue;
 
 @Primative
 public interface Clothing {
-    PValue<ClothingEnum> choice();
+    PValue<ClothingEnum> choiceEnum();
+    default void chooseSuit(){choiceEnum().set(ClothingEnum.SUIT);}
+    default void chooseCoat(){choiceEnum().set(ClothingEnum.COAT);}
+    default void chooseTshirt(){choiceEnum().set(ClothingEnum.T_SHIRT);}
+    default void chooseHat(){choiceEnum().set(ClothingEnum.HAT);}
     default boolean undecided(){
-        return this.choice().get()==ClothingEnum.U;
+        return this.choiceEnum().get()==ClothingEnum.UNDECIDED;
     }
-    default boolean smartJacket(){
-        return this.choice().get()==ClothingEnum.L;
+    default boolean suit(){
+        return this.choiceEnum().get()==ClothingEnum.SUIT;
     }
-    default boolean rainCoat(){
-        return this.choice().get()==ClothingEnum.R;
+    default boolean coat(){
+        return this.choiceEnum().get()==ClothingEnum.COAT;
     }
     default boolean Tshirt(){
-        return this.choice().get()==ClothingEnum.C;
+        return this.choiceEnum().get()==ClothingEnum.T_SHIRT;
     }
 
     default boolean hat(){
-        return this.choice().get()==ClothingEnum.H;
+        return this.choiceEnum().get()==ClothingEnum.HAT;
+    }
+
+    default void setUndecided(){
+        choiceEnum().set(ClothingEnum.UNDECIDED);
     }
 }

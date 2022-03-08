@@ -7,27 +7,31 @@ import com.cognitionbox.petra.annotations.Primative;
     Clothing clothing();
     DayAndWeather dayAndWeather();
 
-    default boolean sunnyWeekendTshirtClothing(){
-        return dayAndWeather().sunnyWeekend() && clothing().Tshirt();
+    default boolean rainyWeekdayCoatClothing(){
+        return clothing().coat() && dayAndWeather().rainyWeekday();
     }
 
-    default boolean rainyWeekendRainCoatClothing(){
-        return dayAndWeather().rainyWeekend() && clothing().rainCoat();
+    default boolean rainyWeekendCoatClothing(){
+        return clothing().coat() && dayAndWeather().rainyWeekend();
     }
 
-    default boolean moderateWeekendNotSmartJacketClothing(){
-        return dayAndWeather().moderateWeekend() && !clothing().smartJacket() && !clothing().undecided();
+    default boolean plainWeekendTshirtClothing(){
+        return dayAndWeather().plainWeekend() && clothing().Tshirt();
     }
 
-    default boolean sunnyWeekdayHatClothing(){
-        return dayAndWeather().sunnyWeekday() && clothing().hat();
+    default boolean notRainyWeekdaySuitClothing(){
+        return dayAndWeather().notRainyWeekday() && clothing().suit();
     }
 
-    default boolean rainyWeekdaySmartJacketClothing(){
-        return clothing().smartJacket() && (dayAndWeather().rainyWeekday() && dayAndWeather().moderateWeekday());
+    default boolean sunnyWeekendHatClothing(){
+        return dayAndWeather().sunnyWeekend() && clothing().hat();
     }
 
-    default boolean moderateWeekdayAnyClothing(){
-        return dayAndWeather().moderateWeekday() && !clothing().undecided();
+    default void printChoice(){
+        System.out.println("is weekend?: "+dayAndWeather().day().weekend());
+        System.out.println("weather: "+dayAndWeather().weather().weatherEnum().get());
+        System.out.println("choice: "+clothing().choiceEnum().get());
     }
+
+
 }

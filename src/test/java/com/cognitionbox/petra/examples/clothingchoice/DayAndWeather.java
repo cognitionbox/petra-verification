@@ -15,19 +15,15 @@ public interface DayAndWeather {
         return day().weekend() && weather().rainy();
     }
 
-    default boolean moderateWeekend(){
-        return day().weekend() && weather().moderate();
-    }
-
-    default boolean sunnyWeekday(){
-        return day().weekday() && weather().sunny();
+    default boolean plainWeekend(){
+        return day().weekend() && weather().plain();
     }
 
     default boolean rainyWeekday(){
         return day().weekday() && weather().rainy();
     }
 
-    default boolean moderateWeekday(){
-        return day().weekday() && weather().moderate();
+    default boolean notRainyWeekday(){
+        return !weather().rainy() && day().weekday();
     }
 }

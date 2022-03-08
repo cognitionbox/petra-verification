@@ -3,9 +3,9 @@ package com.cognitionbox.petra.examples.clothingchoice;
 import com.cognitionbox.petra.lang.primitives.PValue;
 
 public class ClothingImpl implements Clothing {
-    PValue<ClothingEnum> choice = new PValue<>();
+    PValue<ClothingEnum> choiceEnum = new PValue<>();
     @Override
-    public PValue<ClothingEnum> choice() {
-        return choice;
+    public PValue<ClothingEnum> choiceEnum() {
+        return choiceEnum;
     }
 }
