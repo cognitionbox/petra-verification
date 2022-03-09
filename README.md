@@ -1,12 +1,12 @@
 # petra-verification
 The verifier for the Petra programming language.
-This is a Java JUnit plugin which reads Petra Core code and uses formal semantics to verify the code automatically. This plugin will work with your existing Java 8+ build pipelines and replaces non-exhaustive tests with an exhaustive proof of functional correctness (down to but not including edge level code, edge code will be verified in later versions).
+This is a Java JUnit plugin which reads Petra code and uses formal semantics to verify the code automatically. This plugin will work with your existing Java 8+ build pipelines and replaces non-exhaustive tests with an exhaustive proof of functional correctness (down to but not including edge level code, edge code will be verified in later versions).
 In order to help understand this README file it would help to read the README of ```petra```.
 
 ## Formal Semantics ##
 Petra semantics semantics are given by two separate term rewriting systems, one for translation and the other for execution.
-The translation system aims to translate a the graph kases within a Petra program into Petra Runtime Language. 
-The execution system describes how a Petra program executes and affects its input state, step by step.
+The translation system aims to translate a the graph kases within a Petra program into sequential steps which can
+be reasoned about easily. The execution system describes how a Petra program executes and affects its input state, step by step.
 
 ### Petra Program ###
 A petra program p, is a tuple:
