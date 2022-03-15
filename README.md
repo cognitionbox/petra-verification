@@ -8,7 +8,7 @@ Petra semantics semantics are given by two separate term rewriting systems, one 
 The translation system aims to translate a the graph kases within a Petra program into sequential steps which can
 be reasoned about easily. The execution system describes how a Petra program executes and affects its input state, step by step.
 
-### Petra Program ###
+###1. Petra Program (definition) ###
 A petra program p, is a tuple:
 
 <img src="https://render.githubusercontent.com/render/math?math=<r, GD,  ED,  RV,  CV,  PV>">
@@ -21,7 +21,7 @@ RV is the set of reference view definitions
 CV is the set of collection view definitions
 PV is the set of primitive view definitions
 
-### Translation ###
+###2. Translation (definition) ###
 These rules are syntax pattern matched rules which match/replace graph kase sub-terms, given by a relation
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}"> where gk is a graph kase,
 <img src="https://render.githubusercontent.com/render/math?math=gk \in GK">. 
@@ -31,7 +31,7 @@ which is important as properties proved during translations using conditions on 
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans} \ \subset GK \times GK">
 
-### Symbolic Execution ###
+###3. Symbolic Execution (definition) ###
 These symbolic execution is given by a relation:
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{sym} \ \subset \Sigma \times \Sigma">
@@ -46,7 +46,7 @@ gk = a graph kase statement,
 <img src="https://render.githubusercontent.com/render/math?math=\alpha"> = symbolic state,
 pf = proved flag.
 
-### Concrete Execution ###
+###4. Concrete Execution (definition) ###
 Concrete execution is given by a relation:
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{conc} \ \subset X \times X">
@@ -61,16 +61,16 @@ gk = a graph kase statement,
 
 pf = proved flag.
 
-### Validity ###
+###5. Validity (definition) ###
 A Petra program p is valid iff
 
 <img src="https://render.githubusercontent.com/render/math?math=\forall gd \in GD \ \forall k \in kases(gd) , \ k \xrightarrow{trans}* \ k'">
 
-### Symbolic Reachability ###
+###6. Symbolic Reachability (definition) ###
 
 <img src="https://render.githubusercontent.com/render/math?math=\forall k \in kasesRecursively(r) \ \forall \alpha \in \mathrm{A}(view(graph(k))) , \ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given, \ k \xrightarrow{trans}* \ k'">
 
-### Functional Correctness ###
+###7. Correctness (definition) ###
 In general functional correctness is the correct input/output behavior of an algorithm, i.e. for each input there is an output which satisfies the specification.
 Below we define Petra's version of functional correctness which is a stronger statement.
 For all runs of the program p, for all kases in the root graph r, for all concrete states <img src="https://render.githubusercontent.com/render/math?math=\gamma"> in the data type of r,
@@ -80,6 +80,19 @@ the <img src="https://render.githubusercontent.com/render/math?math=\gamma"> mus
 <img src="https://render.githubusercontent.com/render/math?math=\forall \rho \in \Rho \ \forall k \in kases(r) \ \forall \gamma \in \Gamma(data(graph(k))) , \ <k',\gamma,F>\xrightarrow{conc}*<k'',\gamma', T> \ given, \ k \xrightarrow{trans}* \ k'">
 
 This implies requirements of Dead-lock/Live-lock/Starvation freedom.
+
+###8. Correctness (conjecture) ###
+
+Given a kase has symbolic reachability, then correctness will be true for the kase:
+
+<img src="https://render.githubusercontent.com/render/math?math=6 \implies 7">
+
+This assumes correct behaviour of the edges i.e for all edge inputs there is an output, according to the pre/post conditions of the edge.
+To prove this conjecture we need to show that given 5 and any 
+
+<img src="https://render.githubusercontent.com/render/math?math=\rho, k, \gamma, \  precondition(k)(\gamma) \\">
+
+<img src="https://render.githubusercontent.com/render/math?math=\exists \alpha, \ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \implies <k',\gamma,F>\xrightarrow{conc}*<k'',\gamma', T>">
 
 ## Build & Install ##
 Clone the following repos:
