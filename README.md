@@ -8,7 +8,7 @@ Petra semantics semantics are given by two separate term rewriting systems, one 
 The translation system aims to translate a the graph kases within a Petra program into sequential steps which can
 be reasoned about easily. The execution system describes how a Petra program executes and affects its input state, step by step.
 
-###1. Petra Program (definition) ###
+### 1. Petra Program (definition) ###
 A petra program p, is a tuple:
 
 <img src="https://render.githubusercontent.com/render/math?math=<r, GD,  ED,  RV,  CV,  PV>">
@@ -64,35 +64,18 @@ pf = proved flag.
 ###5. Validity (definition) ###
 A Petra program p is valid iff
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall gd \in GD \ \forall k \in kases(gd) , \ k \xrightarrow{trans}* \ k'">
+
+
+where,
+
+<img src="https://render.githubusercontent.com/render/math?math=ProgramKases = \{x \mid \forall gd \in GD \ \forall x \in kases(gd)\}">
+<img src="https://render.githubusercontent.com/render/math?math=kases: GD \xrightarrow{} K">
+<img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}* = \text{is the reflexive transitive closure of} \xrightarrow{trans}">
+<img src="https://render.githubusercontent.com/render/math?math=k' \in kase(pre,post,\{jseqs\})">
 
 ###6. Symbolic Reachability (definition) ###
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall k \in kasesRecursively(r) \ \forall \alpha \in \mathrm{A}(view(graph(k))) , \ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given, \ k \xrightarrow{trans}* \ k'">
-
-###7. Correctness (definition) ###
-In general functional correctness is the correct input/output behavior of an algorithm, i.e. for each input there is an output which satisfies the specification.
-Below we define Petra's version of functional correctness which is a stronger statement.
-For all runs of the program p, for all kases in the root graph r, for all concrete states <img src="https://render.githubusercontent.com/render/math?math=\gamma"> in the data type of r,
-<img src="https://render.githubusercontent.com/render/math?math=\gamma"> must be transformed into some <img src="https://render.githubusercontent.com/render/math?math=\gamma'">which satisfies the post condition of the kase, without at any point, pausing due to a programmed condition and
-the <img src="https://render.githubusercontent.com/render/math?math=\gamma"> must be transformed into the same <img src="https://render.githubusercontent.com/render/math?math=\gamma'"> for every run.
-
-<img src="https://render.githubusercontent.com/render/math?math=\forall \rho \in \Rho \ \forall k \in kases(r) \ \forall \gamma \in \Gamma(data(graph(k))) , \ <k',\gamma,F>\xrightarrow{conc}*<k'',\gamma', T> \ given, \ k \xrightarrow{trans}* \ k'">
-
-This implies requirements of Dead-lock/Live-lock/Starvation freedom.
-
-###8. Correctness (conjecture) ###
-
-Given a kase has symbolic reachability, then correctness will be true for the kase:
-
-<img src="https://render.githubusercontent.com/render/math?math=6 \implies 7">
-
-This assumes correct behaviour of the edges i.e for all edge inputs there is an output, according to the pre/post conditions of the edge.
-To prove this conjecture we need to show that given 5 and any 
-
-<img src="https://render.githubusercontent.com/render/math?math=\rho, k, \gamma, \  precondition(k)(\gamma) \\">
-
-<img src="https://render.githubusercontent.com/render/math?math=\exists \alpha, \ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \implies <k',\gamma,F>\xrightarrow{conc}*<k'',\gamma', T>">
+<img src="https://render.githubusercontent.com/render/math?math=\forall k \in ProgramKases \ \forall \alpha \in symbolicProduct(classDefLookup(view(graph(k))) , \\ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given \ program \ is \ valid.">
 
 ## Build & Install ##
 Clone the following repos:
