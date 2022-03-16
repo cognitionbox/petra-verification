@@ -21,7 +21,7 @@ RV is the set of reference view definitions
 CV is the set of collection view definitions
 PV is the set of primitive view definitions
 
-###2. Translation (definition) ###
+### 2. Translation (definition) ###
 These rules are syntax pattern matched rules which match/replace graph kase sub-terms, given by a relation
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}"> where gk is a graph kase,
 <img src="https://render.githubusercontent.com/render/math?math=gk \in GK">. 
@@ -31,7 +31,7 @@ which is important as properties proved during translations using conditions on 
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans} \ \subset GK \times GK">
 
-###3. Symbolic Execution (definition) ###
+### 3. Symbolic Execution (definition) ###
 These symbolic execution is given by a relation:
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{sym} \ \subset \Sigma \times \Sigma">
@@ -46,7 +46,7 @@ gk = a graph kase statement,
 <img src="https://render.githubusercontent.com/render/math?math=\alpha"> = symbolic state,
 pf = proved flag.
 
-###4. Concrete Execution (definition) ###
+### 4. Concrete Execution (definition) ###
 Concrete execution is given by a relation:
 
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{conc} \ \subset X \times X">
@@ -61,7 +61,7 @@ gk = a graph kase statement,
 
 pf = proved flag.
 
-###5. Validity (definition) ###
+### 5. Validity (definition) ###
 A Petra program p is valid iff
 
 
@@ -73,7 +73,7 @@ where,
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}* = \text{is the reflexive transitive closure of} \xrightarrow{trans}">
 <img src="https://render.githubusercontent.com/render/math?math=k' \in kase(pre,post,\{jseqs\})">
 
-###6. Symbolic Reachability (definition) ###
+### 6. Symbolic Reachability (definition) ###
 
 <img src="https://render.githubusercontent.com/render/math?math=\forall k \in ProgramKases \ \forall \alpha \in symbolicProduct(classDefLookup(view(graph(k))) , \\ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given \ program \ is \ valid.">
 
