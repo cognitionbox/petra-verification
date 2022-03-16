@@ -24,7 +24,9 @@ PV is the set of primitive view definitions
 ### 2. Translation (definition) ###
 These rules are syntax pattern matched rules which match/replace graph kase sub-terms, given by a relation
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}"> where gk is a graph kase,
-<img src="https://render.githubusercontent.com/render/math?math=gk \in GK">. 
+<img src="https://render.githubusercontent.com/render/math?math=gk \in GK">.
+The relation will aim to translate a kase into a kase of simple sequential statements only i.e seq statements.
+This will allow reasoning about symbolic reachability to be performed more easily.
 Please note that the translation rules are mirrored in the Java implementation of Petra's embedded style language. 
 This means the concrete execution semantics of a petra program remains consistent through translations, 
 which is important as properties proved during translations using conditions on the rewrites will remain during the concrete execution.
