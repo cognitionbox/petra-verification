@@ -43,36 +43,24 @@ public class Verification {
     public Verification(VerificationTask task) {
         this.task = task;
     }
-    @Parameterized.Parameters(name = "{0}")//{index}: stepTest[{0}]={1}")
+
+    @Parameterized.Parameters(name = "{0}")
     public static Collection tasks() {
         PetraProgram.parseSrcFiles();
-
-//        try {
-//            if (!PetraProgram.checkRootKases(PetraProgram.all.get(Class.forName(PetraProgram.entryPointPackageName +"."+ PetraProgram.rootGraphName)))){
-//                throw new IllegalStateException("root kases are invalid");
-//            }
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-
-        //PetraProgram.verifyViews2(); // enable after updating trading system
         tasks = new ArrayList<>();
         for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->
-                //c.clazz.isInterface() &&
                 c.clazz.isInterface() &&
-                        //!c.clazz.getSimpleName().startsWith("P") &&
-                        !Consumer.class.isAssignableFrom(c.clazz) &&
-                        !c.clazz.isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
+                !Consumer.class.isAssignableFrom(c.clazz) &&
+                !c.clazz.isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
             tasks.add(new ProveViewSoundnessAndCompletenessTask(cu));
         }
         PetraProgram.LOG.debug("views: "+PetraProgram.dataTypeInfoMap);
 
-        //tasks.addAll(PetraProgram.all.values().stream().map(c->new ParseFileTask(c)).collect(Collectors.toList()));
         for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
-            String term2 = cu.compilationUnit.toString();
-            term2 = term2.replaceAll("empty empty","i");
-            CompilationUnit programTerm2 = new JavaParser().parse(term2).getResult().get();
-            cu.compilationUnit = programTerm2;
+            String term = cu.compilationUnit.toString();
+            term = term.replaceAll("empty empty","i");
+            CompilationUnit programTerm = new JavaParser().parse(term).getResult().get();
+            cu.compilationUnit = programTerm;
             int count = 0;
             for (Expression kase : cu.compilationUnit
                     .getClassByName(cu.clazz.getSimpleName()).get()
@@ -123,36 +111,18 @@ public class Verification {
         }
     }
 
-    static class ParseFileTask extends BaseVerificationTask {
-        CompilationUnitWithData cu;
-        public ParseFileTask(CompilationUnitWithData cu) {
-            this.cu = cu;
-        }
-
-        @Override
-        public String toString() {
-            return "Parsing of "+cu.path.toString().split("\\\\")[cu.path.toString().split("\\\\").length-1];
-        }
-    }
-
     @Test
     public void test() throws ClassNotFoundException {
         if (task instanceof ProveKaseTask){
             ProveKaseTask proveKaseTask = (ProveKaseTask) task;
-//            if (!PetraProgram.checkRootKasesForCompletenessAndSoundnessAgainstAView(((ProveKaseTask) task).cu)){
-//                throw new IllegalStateException("root kases are invalid, not sound and complete wrt to a view.");
-//            }
             PetraProgram.rewriteSingleJoinPar(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            //rewriteCasts();
             PetraProgram.rewriteGraphKaseStepsToEdges(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteGraphKaseJoinParStepsToEdges(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteStepsWithForall(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteGraphKaseSeperatedStepsToNonSeperatedSteps(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteJoinForallParSteps(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteGraphKaseJoinParsToSeq(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            //PetraProgram.rewriteGraphKaseJoinParsOrSeperatedSeqsToSeq(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             PetraProgram.rewriteSingleParStepToSeqStep(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            //PetraProgram.checkKasePreAndPostConditionsFallInsideADistinctView(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
             if (PetraProgram.rewriteKase(
                     proveKaseTask.cu.clazz.isAnnotationPresent(Infinite.class) &&
                             proveKaseTask.cu.clazz.getSimpleName().equals(PetraProgram.rootGraphName) && proveKaseTask.cu.compilationUnit
@@ -180,26 +150,11 @@ public class Verification {
             } else {
                 task.markPassed();
             }
-        } else if (task instanceof ParseFileTask){
-//            ParseFileTask parseFileTask = (ParseFileTask) task;
-//            System.out.println(parseFileTask.cu.path.toString());
-//            ParseNodeAndRuleMatchResults res = BullwinkleCli.doMain(new String[]{"C:\\Users\\aranh\\Downloads\\petra-java.bnf",parseFileTask.cu.path.toString()}, System.in, System.out, System.err);
-//            if (res.parseNode==null){
-//                fail();
-//            } else {
-//                task.markPassed();
-//            }
         }
     }
 
     @AfterClass
     public static void after(){
-//        if (PetraProgram.all.values().stream()
-//                .filter(c->Consumer.class.isAssignableFrom(c.clazz) && !c.clazz.isAnnotationPresent(Edge.class))
-//                .allMatch(cu ->!cu.status.values().isEmpty() && cu.status.values().stream().allMatch(proved->proved==true))){
-//            PetraProgram.convertToControlledEnglish();
-//        }
-
         if (tasks.stream().allMatch(t->t.passed())){
             PetraProgram.convertToControlledEnglish();
         }
