@@ -69,8 +69,11 @@ A Petra program p is valid iff
 where,
 
 <img src="https://render.githubusercontent.com/render/math?math=ProgramKases = \{x \mid \forall gd \in GD \ \forall x \in kases(gd)\}">
+
 <img src="https://render.githubusercontent.com/render/math?math=kases: GD \xrightarrow{} K">
+
 <img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}* = \text{is the reflexive transitive closure of} \xrightarrow{trans}">
+
 <img src="https://render.githubusercontent.com/render/math?math=k' \in kase(pre,post,\{jseqs\})">
 
 ### 6. Symbolic Reachability (definition) ###
