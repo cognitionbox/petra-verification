@@ -74,13 +74,13 @@ where,
 
 <img src="https://render.githubusercontent.com/render/math?math=kases: GD \xrightarrow{} K">
 
-<img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}* = \text{is the reflexive transitive closure of} \xrightarrow{trans}">
+<img src="https://render.githubusercontent.com/render/math?math=\xrightarrow{trans}* = \text{is the reflexive transitive closure of } \xrightarrow{trans}">
 
 <img src="https://render.githubusercontent.com/render/math?math=k' \in kase(pre,post,\{jseqs\})">
 
 ### 6. Symbolic Reachability (definition) ###
 
-<img src="https://render.githubusercontent.com/render/math?math=\forall k \in ProgramKases \ \forall \alpha \in symbolicProduct(classDefLookup(view(graph(k))) , \\ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given \ program \ is \ valid.">
+<img src="https://render.githubusercontent.com/render/math?math=\forall k \in ProgramKases \ \forall \alpha \in symbolicProduct(definitionLookup(view(graph(k))) , \\ <k',\alpha,F>\xrightarrow{symb}*<k'',\alpha', T> \ given \ program \ is \ valid.">
 
 ## Build & Install ##
 Clone the following repos:
