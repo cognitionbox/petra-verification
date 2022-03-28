@@ -1,0 +1,44 @@
+package com.cognitionbox.petra.verification;
+
+public final class Strings {
+    public static String COLON = ":";
+    public static String SEMI_COLON = ";";
+    public static String RETURN = "return";
+    public static String BLANK = "";
+    public static String ARROW = "->";
+    public static String SPACE = " ";
+    public static String XOR = "^";
+    public static String DOT = ".";
+    public static String DOT_ESCAPED = "\\.";
+    public static String OPEN_CLOSED_BRACKETS_ESCAPED = "\\(\\)";
+    public static String OPEN_BRACKET_ESCAPED = "\\(";
+    public static String CLOSED_BRACKET_ESCAPED = "\\)";
+    public static String OPEN_SQUARE_BRACKET_ESCAPED = "\\[";
+    public static String CLOSED_SQUARE_BRACKET_ESCAPED = "\\]";
+    public static String OPEN_SQUARE_BRACKET = "[";
+    public static String CLOSED_SQUARE_BRACKET = "]";
+    public static String OPEN_CURLY_BRACKET = "{";
+    public static String CLOSED_CURLY_BRACKET = "}";
+    public static String OPEN_BRACKET = "(";
+    public static String CLOSED_BRACKET = ")";
+    public static String XOR_ESCAPED = "\\^";
+    public static String NOT_ESCAPED = "\\!";
+    public static String NOT = "!";
+    public static String AND_ESCAPED = "\\&";
+    public static String OR_ESCAPED = "\\|";
+    public static String AND = "&&";
+    public static String COMMA = ",";
+    public static String BOOLEAN_PRIMITIVE_TYPE = "boolean";
+    public static String DOUBLE_QUOTE_ESCAPED = "\"";
+    public static String UNDERSCORE = "_";
+    public static String ACCEPT = "accept";
+    public static String NEW_LINE = "\n";
+    public static String TAB = "\t";
+    public static String DASH = "-";
+    public static String IS_EMPTY = "isEmpty";
+    public static String COLLECTION = "Collection";
+    public static String ROOT_DIR_PATH = "./";
+    public static String JAVA_FILE_EXT = ".java";
+    public static String FORALL = "forall";
+    public static String EQUALS = "equals";
+}
