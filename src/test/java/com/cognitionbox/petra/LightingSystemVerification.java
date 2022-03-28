@@ -2,6 +2,7 @@ package com.cognitionbox.petra;
 
 import com.cognitionbox.petra.examples.lightingsystem.ToggleLight;
 import com.cognitionbox.petra.verification.Verification;
+import com.cognitionbox.petra.verification.tasks.VerificationTask;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 

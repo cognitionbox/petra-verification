@@ -4,6 +4,9 @@ import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.annotations.Infinite;
 import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.lang.step.PGraph;
+import com.cognitionbox.petra.verification.tasks.ProveKaseTask;
+import com.cognitionbox.petra.verification.tasks.ProveViewSoundnessAndCompletenessTask;
+import com.cognitionbox.petra.verification.tasks.VerificationTask;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -18,28 +21,19 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.cognitionbox.petra.verification.Strings.ACCEPT;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class Verification {
-    public interface VerificationTask {
-        boolean passed();
-        void markPassed();
-    }
-    public static class BaseVerificationTask implements VerificationTask {
-        private volatile boolean passed = false;
-        @Override
-        public boolean passed() {
-            return passed;
-        }
 
-        @Override
-        public void markPassed() {
-            passed = true;
-        }
-    }
     private static List<VerificationTask> tasks;
-    VerificationTask task;
+
+    public VerificationTask getTask() {
+        return task;
+    }
+
+    private VerificationTask task;
     public Verification(VerificationTask task) {
         this.task = task;
     }
@@ -49,22 +43,22 @@ public class Verification {
         PetraProgram.parseSrcFiles();
         tasks = new ArrayList<>();
         for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->
-                c.clazz.isInterface() &&
-                !Consumer.class.isAssignableFrom(c.clazz) &&
-                !c.clazz.isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
+                c.getClazz().isInterface() &&
+                !Consumer.class.isAssignableFrom(c.getClazz()) &&
+                !c.getClazz().isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
             tasks.add(new ProveViewSoundnessAndCompletenessTask(cu));
         }
         PetraProgram.LOG.debug("views: "+PetraProgram.dataTypeInfoMap);
 
-        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.clazz) && !PEdge.class.isAssignableFrom(c.clazz)).collect(Collectors.toList())) {
-            String term = cu.compilationUnit.toString();
+        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.getClazz()) && !PEdge.class.isAssignableFrom(c.getClazz())).collect(Collectors.toList())) {
+            String term = cu.getCompilationUnit().toString();
             term = term.replaceAll("empty empty","i");
             CompilationUnit programTerm = new JavaParser().parse(term).getResult().get();
-            cu.compilationUnit = programTerm;
+            cu.setCompilationUnit(programTerm);
             int count = 0;
-            for (Expression kase : cu.compilationUnit
-                    .getClassByName(cu.clazz.getSimpleName()).get()
-                    .getMethodsByName("accept").get(0).getBody().get()
+            for (Expression kase : cu.getCompilationUnit()
+                    .getClassByName(cu.getClazz().getSimpleName()).get()
+                    .getMethodsByName(ACCEPT).get(0).getBody().get()
                     .asBlockStmt()
                     .getStatements()
                     .get(0)
@@ -83,58 +77,19 @@ public class Verification {
         return tasks;
     }
 
-    static class ProveViewSoundnessAndCompletenessTask extends BaseVerificationTask {
-        public ProveViewSoundnessAndCompletenessTask(CompilationUnitWithData view) {
-            this.view = view;
-        }
-        private CompilationUnitWithData view;
-
-        @Override
-        public String toString() {
-            return "View:"+view.clazz.getSimpleName();
-        }
-    }
-
-    static class ProveKaseTask extends BaseVerificationTask {
-        int count;
-        Expression kase;
-        CompilationUnitWithData cu;
-        public ProveKaseTask(int count, Expression kase, CompilationUnitWithData cu) {
-            this.count = count;
-            this.kase = kase;
-            this.cu = cu;
-        }
-
-        @Override
-        public String toString() {
-            return "Kase"+count+":"+cu.clazz.getSimpleName();
-        }
-    }
-
     @Test
     public void test() throws ClassNotFoundException {
         if (task instanceof ProveKaseTask){
             ProveKaseTask proveKaseTask = (ProveKaseTask) task;
-            PetraProgram.rewriteSingleJoinPar(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteGraphKaseStepsToEdges(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteGraphKaseJoinParStepsToEdges(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteStepsWithForall(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteGraphKaseSeperatedStepsToNonSeperatedSteps(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteJoinForallParSteps(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteGraphKaseJoinParsToSeq(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            PetraProgram.rewriteSingleParStepToSeqStep(proveKaseTask.kase,proveKaseTask.cu,proveKaseTask.count);
-            if (PetraProgram.rewriteKase(
-                    proveKaseTask.cu.clazz.isAnnotationPresent(Infinite.class) &&
-                            proveKaseTask.cu.clazz.getSimpleName().equals(PetraProgram.rootGraphName) && proveKaseTask.cu.compilationUnit
-                            .getClassByName(proveKaseTask.cu.clazz.getSimpleName()).get()
-                            .getMethodsByName("accept").get(0).getBody().get()
-                            .asBlockStmt()
-                            .getStatements()
-                            .get(0)
-                            .asExpressionStmt()
-                            .getExpression()
-                            .asMethodCallExpr()
-                            .getArguments().size()-1==proveKaseTask.count,proveKaseTask.kase, proveKaseTask.cu,proveKaseTask.count)){
+            PetraProgram.rewriteSingleJoinPar(proveKaseTask);
+            PetraProgram.rewriteGraphKaseStepsToEdges(proveKaseTask);
+            PetraProgram.rewriteGraphKaseJoinParStepsToEdges(proveKaseTask);
+            PetraProgram.rewriteStepsWithForall(proveKaseTask);
+            PetraProgram.rewriteGraphKaseSeperatedStepsToNonSeperatedSteps(proveKaseTask);
+            PetraProgram.rewriteJoinForallParSteps(proveKaseTask);
+            PetraProgram.rewriteGraphKaseJoinParsToSeq(proveKaseTask);
+            PetraProgram.rewriteSingleParStepToSeqStep(proveKaseTask);
+            if (PetraProgram.rewriteKase(proveKaseTask)){
                 task.markPassed();
                 assertTrue(true);
             } else {
@@ -142,9 +97,9 @@ public class Verification {
             }
         } else if(task instanceof ProveViewSoundnessAndCompletenessTask){
             ProveViewSoundnessAndCompletenessTask soundnessAndCompletenessTask = (ProveViewSoundnessAndCompletenessTask)task;
-            ClassOrInterfaceDeclaration c = soundnessAndCompletenessTask.view.compilationUnit
-                    .getInterfaceByName(soundnessAndCompletenessTask.view.clazz.getSimpleName()).get();
-            boolean result =  PetraProgram.isViewSoundAndComplete(soundnessAndCompletenessTask.view.compilationUnit,soundnessAndCompletenessTask.view.clazz,c);
+            ClassOrInterfaceDeclaration c = soundnessAndCompletenessTask.getView().getCompilationUnit()
+                    .getInterfaceByName(soundnessAndCompletenessTask.getView().getClazz().getSimpleName()).get();
+            boolean result =  PetraProgram.isViewSoundAndComplete(soundnessAndCompletenessTask.getView().getClazz(),c);
             if (!result){
                 fail();
             } else {
