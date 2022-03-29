@@ -66,7 +66,7 @@ pf = proved flag.
 ### 5. Validity (definition) ###
 A Petra program p is valid iff
 
-
+<img src="https://render.githubusercontent.com/render/math?math=\forall k \in ProgramKases , \ k \xrightarrow{trans}* \ k'">
 
 where,
 
