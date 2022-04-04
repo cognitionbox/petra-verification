@@ -4,10 +4,12 @@ import com.cognitionbox.petra.verification.CompilationUnitWithData;
 import com.github.javaparser.ast.expr.Expression;
 
 public class ProveKaseTask extends BaseVerificationTask {
+        private final String methodName;
         private final int count;
         private final Expression kase;
         private final CompilationUnitWithData cu;
-        public ProveKaseTask(int count, Expression kase, CompilationUnitWithData cu) {
+        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu) {
+            this.methodName = methodName;
             this.count = count;
             this.kase = kase;
             this.cu = cu;
@@ -15,7 +17,7 @@ public class ProveKaseTask extends BaseVerificationTask {
 
         @Override
         public String toString() {
-            return "Kase"+count+":"+cu.getClazz().getSimpleName();
+            return methodName+":"+cu.getClazz().getSimpleName()+":kase"+count;
         }
 
         public int getCount() {

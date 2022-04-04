@@ -2,7 +2,6 @@ package com.cognitionbox.petra.verification;
 
 import com.cognitionbox.petra.annotations.*;
 import com.cognitionbox.petra.lang.step.PEdge;
-import com.cognitionbox.petra.lang.step.PGraph;
 import com.cognitionbox.petra.verification.tasks.ProveKaseTask;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -27,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,27 +75,7 @@ public class PetraProgram {
                                 } catch (ClassNotFoundException e) {
                                     e.printStackTrace();
                                 }
-                                if (Consumer.class.isAssignableFrom(clazz)){
-                                    CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
-                                    if (PEdge.class.isAssignableFrom(clazz) && Consumer.class.isAssignableFrom(clazz)){
-                                        cu.setEdge(true);
-                                        cu.setProved(true);
-                                    } else if (PGraph.class.isAssignableFrom(clazz) && Consumer.class.isAssignableFrom(clazz)){
-                                        cu.setEdge(false);
-                                    }
-                                    all.put(clazz,cu);
-                                } else {
-                                    // accumulates the number of implementations for each @View
-                                    for (Class c : clazz.getInterfaces()){
-                                        if (c.isAnnotationPresent(View.class)){
-                                            if (viewImplementationCount.containsKey(c)){
-                                                viewImplementationCount.put(c,viewImplementationCount.get(c));
-                                            } else {
-                                                viewImplementation.put(c,clazz);
-                                                viewImplementationCount.put(c,1);
-                                            }
-                                        }
-                                    }
+                                if (clazz.isAnnotationPresent(View.class)){
                                     CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
                                     all.put(clazz,cu);
                                 }
@@ -122,7 +102,7 @@ public class PetraProgram {
 
     static SymbolicState getViewTruth(Class clazz) throws ClassNotFoundException {
         int i = 0;
-        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().filter(m->!m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
+        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().filter(m->!Modifier.isStatic(m.getModifiers()) && !m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
         Set<String>[] methodNames = null;
         if (fields.size()==1 && !fields.get(0).isDefault() && Collection.class.isAssignableFrom(fields.get(0).getReturnType())) {
             // check defaults of view
@@ -136,7 +116,7 @@ public class PetraProgram {
             return new SymbolicState(truth,true);
         } else {
             methodNames = new Set[fields.size()];
-            for (Class<?> t : fields.stream().map(f->f.getReturnType()).collect(Collectors.toList())){
+            for (Class<?> t : fields.stream().filter(m->!Modifier.isStatic(m.getModifiers()) && !m.isDefault() && !m.getReturnType().equals(boolean.class)).map(f->f.getReturnType()).collect(Collectors.toList())){
                 if (t.getSimpleName().contains(COLLECTION)){
                     continue;
                 } else {
@@ -153,7 +133,7 @@ public class PetraProgram {
     }
 
     static Set<List<String>> filterStatesUsingBooleanPrecondition(Set<List<String>> states, boolean forall, String expression, Class clazz){
-        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().filter(m->!m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
+        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().filter(m->!Modifier.isStatic(m.getModifiers()) && !m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
         String r = expression;
         r = r.replaceAll(DOT_ESCAPED,DOT+EQUALS+OPEN_BRACKET+DOUBLE_QUOTE_ESCAPED);
         if (forall){
@@ -215,9 +195,9 @@ public class PetraProgram {
     static boolean isViewSoundAndComplete(Class clazz, ClassOrInterfaceDeclaration c) throws ClassNotFoundException {
                 int i = 0;
                 // field methods need to be declared in alphabetical order
-        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().sorted(Comparator.comparing(Method::getName)).filter(m->!m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
+        List<Method> fields = Arrays.asList(clazz.getMethods()).stream().sorted(Comparator.comparing(Method::getName)).filter(m->!Modifier.isStatic(m.getModifiers()) && !m.isDefault() && !m.getReturnType().equals(boolean.class)).collect(Collectors.toList());
         // use this one instead.
-        List<MethodDeclaration> fieldMethodDeclarations = c.getMethods().stream().filter(m->!m.isDefault() && !m.getType().asString().equals(BOOLEAN_PRIMITIVE_TYPE)).collect(Collectors.toList());
+        List<MethodDeclaration> fieldMethodDeclarations = c.getMethods().stream().filter(m->!m.isStatic() && !m.isDefault() && !m.getType().asString().equals(BOOLEAN_PRIMITIVE_TYPE)).collect(Collectors.toList());
 
         if (!fields.stream().map(f->f.getName()).collect(Collectors.toList()).equals(
                 fieldMethodDeclarations.stream().map(f->f.getName().asString()).collect(Collectors.toList()))
@@ -815,7 +795,7 @@ public class PetraProgram {
                 .getStatements()) {
             if (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join")){
                 MethodCallExpr seq = new MethodCallExpr("seq");
-                Class dataType = Arrays.asList(cu.getClazz().getMethods()).stream().filter(m->!m.getParameterTypes()[0].equals(Object.class) && m.getName().equals(ACCEPT)).findFirst().get().getParameterTypes()[0];
+                Class dataType = cu.getClazz();
                 seq.addArgument(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,dataType.getSimpleName()));
 
                 BlockStmt newBlockStmt = new BlockStmt();
@@ -914,7 +894,7 @@ public class PetraProgram {
             }
             if (!seperationGroup.isEmpty()){
                 MethodCallExpr seq = new MethodCallExpr("seq");
-                Class dataType = Arrays.asList(cu.getClazz().getMethods()).stream().filter(m->!m.getParameterTypes()[0].equals(Object.class) && m.getName().equals(ACCEPT)).findFirst().get().getParameterTypes()[0];
+                Class dataType = cu.getClazz();
                 seq.addArgument(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,dataType.getSimpleName()));
 
                 BlockStmt newBlockStmt = new BlockStmt();
@@ -1000,15 +980,20 @@ public class PetraProgram {
                         continue;
                     }
                     int arg = parOrParr.asMethodCallExpr().getArguments().size() - 1;
-                    if (parOrParr.asMethodCallExpr().getArgument(arg).isObjectCreationExpr()) {
-                        Class c = getClassIfSimpleNameIsUniqueInPackage(parOrParr.asMethodCallExpr().getArgument(arg).asObjectCreationExpr().getType().getNameAsString());
+
+                    if (parOrParr.asMethodCallExpr().getArgument(arg).toString().contains("::")) {
+                        String[] split = parOrParr.asMethodCallExpr().getArgument(arg).toString().split("::");
+                        String methodName = split[1];
+                        Class c = getClassIfSimpleNameIsUniqueInPackage(split[0]);
                         if (c==null){
-                            LOG.debug(parOrParr.asMethodCallExpr().getArgument(arg).asObjectCreationExpr().getType().getNameAsString()+": cannot find class in local package "+cu.getCompilationUnit().getPackageDeclaration().get().getNameAsString());
+                            LOG.debug(split[0]+": cannot find class in local package "+cu.getCompilationUnit().getPackageDeclaration().get().getNameAsString());
                             cantFindClass = true;
                             continue;
                         }
                         parOrParr.asMethodCallExpr().getArgument(arg).remove();
-                        BlockStmt blockStmt = all.get(c).getCompilationUnit().getClassByName(c.getSimpleName()).get().getMethodsByName(ACCEPT).get(0).getBody().get();
+                        BlockStmt blockStmt = all.get(c).getCompilationUnit()
+                                .getInterfaceByName(c.getSimpleName()).get()
+                                .getMethodsByName(methodName).get(0).getBody().get();
                         LambdaExpr lambdaExpr = new LambdaExpr(new Parameter(), blockStmt);
                         BlockStmt newBlockStmt = new BlockStmt();
                         LambdaExpr newLambdaExpr = new LambdaExpr(new Parameter(), newBlockStmt);
@@ -1200,15 +1185,20 @@ public class PetraProgram {
                         beforeLogged = true;
                     }
                     int arg = stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size() - 1;
-                    if (stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).isObjectCreationExpr()) {
-                        Class c = getClassIfSimpleNameIsUniqueInPackage(stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asObjectCreationExpr().getType().getNameAsString());
+                    if (!stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getName().asString().equals("join") &&
+                            stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).toString().contains("::")) {
+                        String[] split = stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).toString().split("::");
+                        String methodName = split[1];
+                        Class c = getClassIfSimpleNameIsUniqueInPackage(split[0]);
                         if (c==null){
-                            LOG.debug(stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asObjectCreationExpr().getType().getNameAsString()+": cannot find class in local package "+cu.getCompilationUnit().getPackageDeclaration().get().getNameAsString());
+                            LOG.debug(split[0]+": cannot find class in local package "+cu.getCompilationUnit().getPackageDeclaration().get().getNameAsString());
                             cantFindClass = true;
                             continue;
                         }
                         stepInstruction.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).remove();
-                        BlockStmt blockStmt = all.get(c).getCompilationUnit().getClassByName(c.getSimpleName()).get().getMethodsByName(ACCEPT).get(0).getBody().get();
+                        BlockStmt blockStmt = all.get(c).getCompilationUnit()
+                                .getInterfaceByName(c.getSimpleName()).get()
+                                .getMethodsByName(methodName).get(0).getBody().get();
                         LambdaExpr lambdaExpr = new LambdaExpr(new Parameter(), blockStmt);
                         BlockStmt newBlockStmt = new BlockStmt();
                         LambdaExpr newLambdaExpr = new LambdaExpr(new Parameter(), newBlockStmt);
@@ -1519,7 +1509,7 @@ public class PetraProgram {
         SymbolicState viewTruth = null;
         Class theViewClass = null;
         try {
-            String viewName = graph.getCompilationUnit().getClassByName(graph.getClazz().getSimpleName()).get().getMethodsByName(ACCEPT).get(0).getParameter(0).getType().asString();
+            String viewName = graph.getClazz().getSimpleName();
             theViewClass = getClassIfSimpleNameIsUniqueInPackage(viewName);
             viewTruth =  PetraProgram.getViewTruth(theViewClass);
             int preconditionDotCount = getMatchesCount(k.asMethodCallExpr().getArgument(0).toString(),'.');

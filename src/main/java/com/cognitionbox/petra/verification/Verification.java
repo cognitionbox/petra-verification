@@ -1,5 +1,7 @@
 package com.cognitionbox.petra.verification;
 
+import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.annotations.Infinite;
 import com.cognitionbox.petra.annotations.Primative;
@@ -10,6 +12,7 @@ import com.cognitionbox.petra.verification.tasks.VerificationTask;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -50,28 +53,33 @@ public class Verification {
         }
         PetraProgram.LOG.debug("views: "+PetraProgram.dataTypeInfoMap);
 
-        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c-> Consumer.class.isAssignableFrom(c.getClazz()) && !PEdge.class.isAssignableFrom(c.getClazz())).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->c.getClazz().isAnnotationPresent(View.class)).collect(Collectors.toList())) {
             String term = cu.getCompilationUnit().toString();
             term = term.replaceAll("empty empty","i");
             CompilationUnit programTerm = new JavaParser().parse(term).getResult().get();
             cu.setCompilationUnit(programTerm);
-            int count = 0;
-            for (Expression kase : cu.getCompilationUnit()
-                    .getClassByName(cu.getClazz().getSimpleName()).get()
-                    .getMethodsByName(ACCEPT).get(0).getBody().get()
-                    .asBlockStmt()
-                    .getStatements()
-                    .get(0)
-                    .asExpressionStmt()
-                    .getExpression()
-                    .asMethodCallExpr()
-                    .getArguments()){
-                if (count==0){
-                    count++;
-                    continue;
+
+            for (MethodDeclaration action : cu.getCompilationUnit()
+                                    .getInterfaceByName(cu.getClazz().getSimpleName()).get()
+                                    .getMethodsByParameterTypes(cu.getClazz())){
+                if (!action.isAnnotationPresent(Edge.class)){
+                    int count = 0;
+                    for (Expression kase : action.getBody().get()
+                            .asBlockStmt()
+                            .getStatements()
+                            .get(0)
+                            .asExpressionStmt()
+                            .getExpression()
+                            .asMethodCallExpr()
+                            .getArguments()){
+                        if (count==0){
+                            count++;
+                            continue;
+                        }
+                        tasks.add(new ProveKaseTask(action.getName().asString(),count,kase,cu));
+                        count++;
+                    }
                 }
-                tasks.add(new ProveKaseTask(count,kase,cu));
-                count++;
             }
         }
         return tasks;
@@ -111,12 +119,12 @@ public class Verification {
     @AfterClass
     public static void after(){
         if (tasks.stream().allMatch(t->t.passed())){
-            PetraProgram.convertToControlledEnglish();
+            //PetraProgram.convertToControlledEnglish();
         }
     }
 
-    protected static void setRoot(Class<? extends Consumer> root) {
-        if (PEdge.class.isAssignableFrom(root)){
+    protected static void setRoot(Class<?> root) {
+        if (!root.isAnnotationPresent(View.class)){
             throw new UnsupportedOperationException();
         }
         PetraProgram.rootGraphName = root.getSimpleName();

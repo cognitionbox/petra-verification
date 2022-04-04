@@ -65,6 +65,6 @@ public class CompilationUnitWithData implements Serializable {
     public CompilationUnitWithData(Path path, Class clazz, CompilationUnit compilationUnit) {
         this.path = path;
         this.clazz = clazz;
-        this.compilationUnit = compilationUnit;
+        this.compilationUnit = compilationUnit.clone();
     }
 }
