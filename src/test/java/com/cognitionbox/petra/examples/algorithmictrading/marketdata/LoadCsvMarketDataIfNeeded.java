@@ -1,14 +1,15 @@
 package com.cognitionbox.petra.examples.algorithmictrading.marketdata;
 
+import com.cognitionbox.petra.lang.step.PEdge;
+
 import java.io.IOException;
 import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
-public class LoadCsvMarketDataIfNeeded implements Consumer<Load> {
-    @Override
-    public void accept(Load c) {
+public interface LoadCsvMarketDataIfNeeded extends PEdge<Load> {
+    static  void accept(Load c) {
         kases(c,
             kase(csv->csv.isNotLoaded(), csv->csv.isLoaded(), csv->{
                 try {

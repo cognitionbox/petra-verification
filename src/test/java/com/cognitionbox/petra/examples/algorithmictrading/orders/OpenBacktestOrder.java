@@ -6,9 +6,8 @@ import com.cognitionbox.petra.examples.algorithmictrading.system.TradingSystem;
 import java.util.function.Consumer;
 
 
-public class OpenBacktestOrder implements PEdge<TradingSystem> {
-    @Override
-    public void accept(TradingSystem ts) {
+public interface OpenBacktestOrder extends PEdge<TradingSystem> {
+    static  void accept(TradingSystem ts) {
 
     }
 }

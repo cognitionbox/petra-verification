@@ -4,14 +4,13 @@ import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class DeleteExpiredLicenses implements PGraph<Licenses> {
-    @Override
-    public void accept(Licenses x) {
+public interface DeleteExpiredLicenses extends PGraph<Licenses> {
+   static void accept(Licenses x) {
         kases(x,
                 kase(licenses->licenses.isEmpty(),
                         licenses->licenses.allLicenseFileExistsAndNotExpiredOrLicenseFileNotExistsAndExpired(), licenses->{
-                    seq(licenses, new PopulateLicenses());
-                    seqr(licenses.licenses(), new ProcessLicense());
+                    seq(licenses, PopulateLicenses::accept);
+                    seqr(licenses.licenses(), ProcessLicense::accept);
                 })
         );
     }

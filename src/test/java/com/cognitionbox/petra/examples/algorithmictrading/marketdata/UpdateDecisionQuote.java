@@ -1,13 +1,13 @@
 package com.cognitionbox.petra.examples.algorithmictrading.marketdata;
 
 import com.cognitionbox.petra.examples.algorithmictrading.system.ModeWithDecisionsWithQuotes;
+import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class UpdateDecisionQuote implements PGraph<ModeWithDecisionsWithQuotes> {
-    @Override
-    public void accept(ModeWithDecisionsWithQuotes m) {
+public interface UpdateDecisionQuote extends PEdge<ModeWithDecisionsWithQuotes> {
+    static  void accept(ModeWithDecisionsWithQuotes m) {
         kases(m,
                 kase(modeWithDecisionsWithQuotes->
                         modeWithDecisionsWithQuotes.mode().isHistoricalMode(),
@@ -16,7 +16,7 @@ public class UpdateDecisionQuote implements PGraph<ModeWithDecisionsWithQuotes> 
                         modeWithDecisionsWithQuotes.decision().bid().isUpdated() &&
                         modeWithDecisionsWithQuotes.decision().ask().isUpdated(),
                         modeWithDecisionsWithQuotes->{
-                            seq((DecisionWithQuotes)modeWithDecisionsWithQuotes, new UpdateDecisionQuoteUsingHistoricalCsvData());
+                            seq((DecisionWithQuotes)modeWithDecisionsWithQuotes, UpdateDecisionQuoteUsingHistoricalCsvData::accept);
                         }),
                 kase(modeWithDecisionsWithQuotes->
                                 modeWithDecisionsWithQuotes.mode().isLiveMode(),
@@ -25,7 +25,7 @@ public class UpdateDecisionQuote implements PGraph<ModeWithDecisionsWithQuotes> 
                                         modeWithDecisionsWithQuotes.decision().bid().isUpdated() &&
                                         modeWithDecisionsWithQuotes.decision().ask().isUpdated(),
                         modeWithDecisionsWithQuotes->{
-                            seq((DecisionWithQuotes)modeWithDecisionsWithQuotes, new UpdateDecisionQuoteUsingLiveData());
+                            seq((DecisionWithQuotes)modeWithDecisionsWithQuotes, UpdateDecisionQuoteUsingLiveData::accept);
                         })
         );
     }

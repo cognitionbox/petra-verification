@@ -11,9 +11,8 @@ import static com.cognitionbox.petra.lang.Petra.kases;
 import static java.math.BigDecimal.ONE;
 
 
-public class BuySellGoldStrategy implements PEdge<TradingSystem> {
-    @Override
-    public void accept(TradingSystem t) {
+public interface BuySellGoldStrategy extends PEdge<TradingSystem> {
+    static  void accept(TradingSystem t) {
         kases(t,
                 kase(
                     strategy->true,

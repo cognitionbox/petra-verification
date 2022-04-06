@@ -1,6 +1,8 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
-public interface License {
+import com.cognitionbox.petra.annotations.View;
+
+@View public interface License {
     LicenseFile licenseFile();
     LicenseRange licenseRange();
 

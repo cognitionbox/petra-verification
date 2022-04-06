@@ -1,19 +1,15 @@
 package com.cognitionbox.petra.examples.lightingsystem;
 
 import com.cognitionbox.petra.lang.step.PEdge;
-
-import java.util.function.Consumer;
-
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 
-public class SwitchOn implements PEdge<Button> {
-    @Override
-    public void accept(Button b) {
+public interface SwitchOn extends PEdge<Button> {
+    static void accept(Button b) {
         kases(b,
                 kase(button->button.off() ^ button.on(), button->button.on(),button->{
-                    button.switchOn();
+                    button.active().set(true);
                 })
         );
     }

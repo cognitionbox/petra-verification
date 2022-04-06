@@ -7,9 +7,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 
-public class G4_ implements PEdge<SomeView2> {
-    @Override
-    public void accept(SomeView2 f) {
+public interface G4_ extends PEdge<SomeView2> {
+    static void accept(SomeView2 f) {
         kases(f,
         kase(someView2->someView2.y(), someView2->someView2.z(), someView2->{
 

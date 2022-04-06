@@ -9,9 +9,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 
-public class SubmitOrder implements PEdge<TradingSystem> {
-    @Override
-    public void accept(TradingSystem ts) {
+public interface SubmitOrder extends PEdge<TradingSystem> {
+    static  void accept(TradingSystem ts) {
         kases(ts,
             kase(
                 tradingSystem->tradingSystem.decision().isOpen().get()!=null,

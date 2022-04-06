@@ -6,13 +6,12 @@ import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class G1 implements PGraph<SomeView2> {
-    @Override
-    public void accept(SomeView2 f) {
+public interface G1 extends PGraph<SomeView2> {
+    static void accept(SomeView2 f) {
         kases(f,kase(someView2->someView2.w(), someView2->someView2.z(), someView2->{
-            seq(someView2, new G2());
-            seq(someView2, new G3());
-            seq(someView2, new G4());
+            seq(someView2, G2::accept);
+            seq(someView2, G3::accept);
+            seq(someView2, G4::accept);
             //join(par(f,new G3()), par(f,new G4()));
         }));
     }

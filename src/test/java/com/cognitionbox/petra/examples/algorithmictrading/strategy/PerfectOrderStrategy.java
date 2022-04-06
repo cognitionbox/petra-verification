@@ -13,9 +13,8 @@ import static com.cognitionbox.petra.lang.primitives.PBigDecimals.TWO;
 import static java.math.BigDecimal.ONE;
 
 
-public class PerfectOrderStrategy implements PEdge<TradingSystem> {
-    @Override
-    public void accept(TradingSystem t) {
+public interface PerfectOrderStrategy extends PEdge<TradingSystem> {
+    static  void accept(TradingSystem t) {
         kases(t,
                 kase(
                     strategy->true,

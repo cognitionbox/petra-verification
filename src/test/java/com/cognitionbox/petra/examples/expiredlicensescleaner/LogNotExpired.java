@@ -7,9 +7,8 @@ import java.util.function.Consumer;
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
- public class LogNotExpired implements PEdge<License> {
-    @Override
-    public void accept(License l) {
+ public interface LogNotExpired extends PEdge<License> {
+    static void accept(License l) {
         kases(l,
                 kase(license->license.licenseFileExistsAndNotExpired(), license->license.licenseFileExistsAndNotExpired(),
                     license->{

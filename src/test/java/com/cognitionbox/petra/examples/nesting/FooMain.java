@@ -1,7 +1,9 @@
 package com.cognitionbox.petra.examples.nesting;
 
+import static com.cognitionbox.petra.lang.Petra.start;
+
 public class FooMain {
     public static void main(String[] args) {
-        new G1().accept(new Foo());
+        start(G1::accept,Foo.class);
     }
 }

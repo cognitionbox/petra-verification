@@ -26,4 +26,5 @@ public interface DayAndWeather {
     default boolean notRainyWeekday(){
         return !weather().rainy() && day().weekday();
     }
+
 }

@@ -12,18 +12,17 @@ import java.util.function.Consumer;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public class RunTradingSystem implements PGraph<TradingSystem> {
-    @Override
-    public void accept(TradingSystem t) {
+public interface RunTradingSystem extends PGraph<TradingSystem> {
+    static  void accept(TradingSystem t) {
         kases(t,
                 kase(tradingSystem->true,
                         tradingSystem->true,
                         tradingSystem->{
-                            seq(tradingSystem.csvDecisionWriter(), new InitDecisionWriterIfNeeded());
-                            seq(tradingSystem.csvMarketData(), new LoadCsvMarketDataIfNeeded());
-                            seq((ModeWithDecisionsWithQuotes) tradingSystem, new UpdateDecisionQuote());
-                            seq(tradingSystem, new PerfectOrderStrategy());
-                            seq(tradingSystem, new SubmitOrder());
+                            seq(tradingSystem.csvDecisionWriter(), InitDecisionWriterIfNeeded::accept);
+                            seq(tradingSystem.csvMarketData(), LoadCsvMarketDataIfNeeded::accept);
+                            seq((ModeWithDecisionsWithQuotes) tradingSystem, UpdateDecisionQuote::accept);
+                            seq(tradingSystem, PerfectOrderStrategy::accept);
+                            seq(tradingSystem, SubmitOrder::accept);
                             //seq(tradingSystem.csvDecisionWriter(), new CloseCsvDecisionWriter());
                         })
         );

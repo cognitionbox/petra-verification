@@ -8,11 +8,14 @@ public class ProveKaseTask extends BaseVerificationTask {
         private final int count;
         private final Expression kase;
         private final CompilationUnitWithData cu;
-        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu) {
+
+    private final boolean kasesAreXOR;
+        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu, boolean kasesAreXOR) {
             this.methodName = methodName;
             this.count = count;
             this.kase = kase;
             this.cu = cu;
+            this.kasesAreXOR = kasesAreXOR;
         }
 
         @Override
@@ -30,5 +33,9 @@ public class ProveKaseTask extends BaseVerificationTask {
 
         public CompilationUnitWithData getCompilationUnitWithData() {
             return cu;
+        }
+
+        public boolean isKasesAreXOR() {
+            return kasesAreXOR;
         }
     }

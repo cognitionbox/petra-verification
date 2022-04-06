@@ -6,9 +6,8 @@ import com.cognitionbox.petra.examples.algorithmictrading.system.TradingSystem;
 import java.util.function.Consumer;
 
 
-public class CloseLiveOrder implements PEdge<TradingSystem> {
-    @Override
-    public void accept(TradingSystem ts) {
+public interface CloseLiveOrder extends PEdge<TradingSystem> {
+    static  void accept(TradingSystem ts) {
 
     }
 }

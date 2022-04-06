@@ -9,9 +9,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 
-public class G2Implementation implements PEdge<SomeView2> {
-    @Override
-    public void accept(SomeView2 f) {
+public interface G2Implementation extends PEdge<SomeView2> {
+    static void accept(SomeView2 f) {
         kases(f,kase(someView2->someView2.w(), someView2->someView2.x(), someView2->{
 
         }));

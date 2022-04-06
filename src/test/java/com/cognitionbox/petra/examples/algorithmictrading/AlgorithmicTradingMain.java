@@ -15,7 +15,7 @@ public class AlgorithmicTradingMain {
         TradingSystem ts = new TradingSystemImpl();
         ts.mode().mode().set(false);
 
-        finiteStart(new RunTradingSystem(),ts,600,0);
+        //finiteStart(RunTradingSystem::accept,ts,600,0);
 
         try {
             ts.csvDecisionWriter().fileWriter().get().close();

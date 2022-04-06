@@ -1,10 +1,7 @@
 package com.cognitionbox.petra.verification;
 
-import com.cognitionbox.petra.annotations.Edge;
-import com.cognitionbox.petra.annotations.View;
+import com.cognitionbox.petra.annotations.*;
 import com.cognitionbox.petra.lang.step.PEdge;
-import com.cognitionbox.petra.annotations.Infinite;
-import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.lang.step.PGraph;
 import com.cognitionbox.petra.verification.tasks.ProveKaseTask;
 import com.cognitionbox.petra.verification.tasks.ProveViewSoundnessAndCompletenessTask;
@@ -18,9 +15,9 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -46,6 +43,7 @@ public class Verification {
         PetraProgram.parseSrcFiles();
         tasks = new ArrayList<>();
         for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->
+                c.getClazz().isAnnotationPresent(View.class) &&
                 c.getClazz().isInterface() &&
                 !Consumer.class.isAssignableFrom(c.getClazz()) &&
                 !c.getClazz().isAnnotationPresent(Primative.class)).collect(Collectors.toList())) {
@@ -53,16 +51,22 @@ public class Verification {
         }
         PetraProgram.LOG.debug("views: "+PetraProgram.dataTypeInfoMap);
 
-        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->c.getClazz().isAnnotationPresent(View.class)).collect(Collectors.toList())) {
+        for (CompilationUnitWithData cu : PetraProgram.all.values().stream().filter(c->PGraph.class.isAssignableFrom(c.getClazz())).collect(Collectors.toList())) {
             String term = cu.getCompilationUnit().toString();
             term = term.replaceAll("empty empty","i");
             CompilationUnit programTerm = new JavaParser().parse(term).getResult().get();
             cu.setCompilationUnit(programTerm);
 
-            for (MethodDeclaration action : cu.getCompilationUnit()
-                                    .getInterfaceByName(cu.getClazz().getSimpleName()).get()
-                                    .getMethodsByParameterTypes(cu.getClazz())){
-                if (!action.isAnnotationPresent(Edge.class)){
+
+            ClassOrInterfaceDeclaration pgraph = cu.getCompilationUnit().getInterfaceByName(cu.getClazz().getSimpleName()).get();
+
+            Type t = cu.getClazz().getGenericInterfaces()[0];
+            Class view = (Class) ((ParameterizedType)t).getActualTypeArguments()[0];
+
+            for (MethodDeclaration action : pgraph.getMethodsByParameterTypes(view)){
+
+                    Set<List<String>> kaseSymbolicStates = new HashSet<>();
+
                     int count = 0;
                     for (Expression kase : action.getBody().get()
                             .asBlockStmt()
@@ -76,10 +80,31 @@ public class Verification {
                             count++;
                             continue;
                         }
-                        tasks.add(new ProveKaseTask(action.getName().asString(),count,kase,cu));
+
+                        boolean kasesAreXOR = true;
+                        Class theViewClass = null;
+                        Class theCastClass = null;
+                        try {
+                            theViewClass = view;
+                            theCastClass = theViewClass;
+                            // prove kases are xor
+                            String siP = PetraProgram.resolveImplementation(kase.asMethodCallExpr().getArgument(0).toString(),theCastClass);
+                            SymbolicState viewTruth = PetraProgram.getViewTruth(theViewClass);
+                            Set<List<String>> preSet = PetraProgram.filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), siP, theViewClass);
+                            Set<List<String>> copy = new HashSet<>(preSet);
+                            copy.retainAll(kaseSymbolicStates);
+                            if (!copy.isEmpty()){
+                                kasesAreXOR = false;
+                            } else {
+                                kaseSymbolicStates.addAll(preSet);
+                            }
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                        tasks.add(new ProveKaseTask(action.getName().asString(),count,kase,cu,kasesAreXOR));
                         count++;
                     }
-                }
             }
         }
         return tasks;
@@ -98,6 +123,9 @@ public class Verification {
             PetraProgram.rewriteGraphKaseJoinParsToSeq(proveKaseTask);
             PetraProgram.rewriteSingleParStepToSeqStep(proveKaseTask);
             if (PetraProgram.rewriteKase(proveKaseTask)){
+                if (!proveKaseTask.isKasesAreXOR()){
+                    throw new IllegalStateException("kase preconditions overlap!");
+                }
                 task.markPassed();
                 assertTrue(true);
             } else {
@@ -119,12 +147,12 @@ public class Verification {
     @AfterClass
     public static void after(){
         if (tasks.stream().allMatch(t->t.passed())){
-            //PetraProgram.convertToControlledEnglish();
+            PetraProgram.convertToControlledEnglish();
         }
     }
 
-    protected static void setRoot(Class<?> root) {
-        if (!root.isAnnotationPresent(View.class)){
+    protected static void setRoot(Class<? extends PGraph> root) {
+        if (!PGraph.class.isAssignableFrom(root)){
             throw new UnsupportedOperationException();
         }
         PetraProgram.rootGraphName = root.getSimpleName();

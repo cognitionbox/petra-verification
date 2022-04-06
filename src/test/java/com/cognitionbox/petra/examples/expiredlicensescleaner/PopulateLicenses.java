@@ -12,9 +12,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 // this level cares about emptyness or (expired ^ not expired) but not deleted
- public class PopulateLicenses implements PEdge<Licenses> {
-    @Override
-    public void accept(Licenses l) {
+ public interface PopulateLicenses extends PEdge<Licenses> {
+    static void accept(Licenses l) {
         kases(l,
                 kase(licenses->licenses.isEmpty(),
                         licenses->licenses.allLicenseFileExistsAndNotExpired(),

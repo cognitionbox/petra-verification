@@ -1,9 +1,11 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.Primative;
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.primitives.impls.PBoolean;
 
-@Primative public interface Day {
+@Primative @View
+public interface Day {
     PBoolean isWeekend();
     default void setWeekend(){
         isWeekend().set(true);
