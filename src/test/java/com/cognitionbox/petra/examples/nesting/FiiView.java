@@ -1,8 +1,9 @@
 package com.cognitionbox.petra.examples.nesting;
 
 import com.cognitionbox.petra.annotations.Primative;
+import com.cognitionbox.petra.annotations.View;
 
-@Primative
+@Primative @View
 public interface FiiView {
     Foo foo1();
     Foo foo2(); // need to refer to this too

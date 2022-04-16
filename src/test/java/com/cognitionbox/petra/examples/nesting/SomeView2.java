@@ -1,5 +1,8 @@
 package com.cognitionbox.petra.examples.nesting;
 
+import com.cognitionbox.petra.annotations.View;
+
+@View
 public interface SomeView2 {
     FeeView fee1();
     FeeView fee2();
