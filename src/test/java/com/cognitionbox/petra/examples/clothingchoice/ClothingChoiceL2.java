@@ -1,7 +1,7 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.Edge;
-import com.cognitionbox.petra.lang.step.PEdge;
+import com.cognitionbox.petra.examples.clothingchoice.impl.ClothingEnum;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;

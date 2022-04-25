@@ -2,6 +2,7 @@ package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.Primative;
 import com.cognitionbox.petra.annotations.View;
+import com.cognitionbox.petra.examples.clothingchoice.impl.WeatherEnum;
 import com.cognitionbox.petra.lang.primitives.PValue;
 
 @Primative @View
