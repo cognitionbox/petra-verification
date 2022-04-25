@@ -1,6 +1,8 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
+import com.cognitionbox.petra.annotations.Edge;
 import com.cognitionbox.petra.lang.step.PEdge;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import java.nio.file.Files;
 import java.time.LocalDate;
@@ -11,8 +13,8 @@ import java.util.function.Consumer;
 import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
- public interface MarkLicensesExpiredOrNot extends PEdge<License> {
-    static void accept(License l) {
+ public interface MarkLicensesExpiredOrNot extends PGraph<License> {
+   @Edge static void accept(License l) {
         kases(l,
                 kase(license->license.licenseFileExistsAndNotExpired(),
                         license->license.licenseFileExistsAndNotExpired() ^

@@ -64,7 +64,9 @@ public class Verification {
             Class view = (Class) ((ParameterizedType)t).getActualTypeArguments()[0];
 
             for (MethodDeclaration action : pgraph.getMethodsByParameterTypes(view)){
-
+                    if (action.isAnnotationPresent(Edge.class)){
+                        continue;
+                    }
                     Set<List<String>> kaseSymbolicStates = new HashSet<>();
 
                     int count = 0;

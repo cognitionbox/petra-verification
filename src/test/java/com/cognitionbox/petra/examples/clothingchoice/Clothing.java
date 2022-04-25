@@ -8,8 +8,8 @@ import com.cognitionbox.petra.lang.primitives.PValue;
 public interface Clothing {
     PValue<ClothingEnum> choiceEnum();
 
-    default boolean undecided(){
-        return this.choiceEnum().get()==ClothingEnum.UNDECIDED;
+    default  boolean undecided(){
+        return choiceEnum().get()==null;
     }
     default boolean suit(){
         return this.choiceEnum().get()==ClothingEnum.SUIT;

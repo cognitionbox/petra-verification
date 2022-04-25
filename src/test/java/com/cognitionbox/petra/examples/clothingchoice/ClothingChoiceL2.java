@@ -1,12 +1,14 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
+import com.cognitionbox.petra.annotations.Edge;
 import com.cognitionbox.petra.lang.step.PEdge;
+import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public interface ClothingChoiceL2 extends PEdge<SystemStates> {
+public interface ClothingChoiceL2 extends PGraph<SystemStates> {
 
-    static void accept(SystemStates s) {
+    @Edge static void accept(SystemStates s) {
         kases(s,
                 kase(system -> system.rainyWeekdayUndecidedClothing(),
                         system -> system.rainyWeekdayCoatClothing(),

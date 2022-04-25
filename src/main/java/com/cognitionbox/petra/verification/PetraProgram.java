@@ -1,7 +1,6 @@
 package com.cognitionbox.petra.verification;
 
 import com.cognitionbox.petra.annotations.*;
-import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.lang.step.PGraph;
 import com.cognitionbox.petra.verification.tasks.ProveKaseTask;
 import com.github.javaparser.JavaParser;
@@ -77,30 +76,8 @@ public class PetraProgram {
                                 } catch (ClassNotFoundException e) {
                                     e.printStackTrace();
                                 }
-                                if (Consumer.class.isAssignableFrom(clazz)){
-                                    CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
-                                    if (PEdge.class.isAssignableFrom(clazz)){
-                                        cu.setEdge(true);
-                                        cu.setProved(true);
-                                    } else if (PGraph.class.isAssignableFrom(clazz)){
-                                        cu.setEdge(false);
-                                    }
-                                    all.put(clazz,cu);
-                                } else {
-                                    // accumulates the number of implementations for each @View
-//                                    for (Class c : clazz.getInterfaces()){
-//                                        if (c.isAnnotationPresent(View.class)){
-//                                            if (viewImplementationCount.containsKey(c)){
-//                                                viewImplementationCount.put(c,viewImplementationCount.get(c));
-//                                            } else {
-//                                                viewImplementation.put(c,clazz);
-//                                                viewImplementationCount.put(c,1);
-//                                            }
-//                                        }
-//                                    }
-                                    CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
-                                    all.put(clazz,cu);
-                                }
+                                CompilationUnitWithData cu = new CompilationUnitWithData(path,clazz,pr.getResult().get());
+                                all.put(clazz,cu);
                             }
                         } catch (IOException e) {
                             LOG.debug("Cannot process: "+e.getMessage());
@@ -1631,10 +1608,10 @@ public class PetraProgram {
                     if (!theCastClass.isAnnotationPresent(View.class)){
                         throw new IllegalStateException("the cast class must be a view.");
                     }
-                    Class impl = getImplementationOfView(theViewClass);
-                    if (!isViewOfImplementation(impl,theCastClass)){
-                        throw new IllegalStateException("the cast view must also be a view of the graph view's implementation.");
-                    }
+//                    Class impl = getImplementationOfView(theViewClass);
+//                    if (!isViewOfImplementation(impl,theCastClass)){
+//                        throw new IllegalStateException("the cast view must also be a view of the graph view's implementation.");
+//                    }
                 }
 
                 String siP = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
@@ -1822,40 +1799,33 @@ public class PetraProgram {
 
                         } else {
                             sb.append("Case "+i+".\nGiven"+formatCondition(a.asMethodCallExpr().getArguments().get(0).toString())+",\n");
-                            if (!PEdge.class.isAssignableFrom(clazz)){
-                                int j = 0;
+                            if (!action.isAnnotationPresent(Edge.class)){
                                 for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                     String stepName = null;
                                     if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
-                                        String firstParOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArgument(1).toString().split("::")[0];
+                                        String firstParOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArgument(1).toString().replaceAll("::"," ");
                                         StringBuilder steps = new StringBuilder();
                                         steps.append(BLANK+firstParOrParrStep);
                                         for (int arg=2;arg<=step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArguments().size();arg++){
-                                            String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).toString().split("::")[0];
-                                            steps.append(" in parallel with "+parOrParrStep);
+                                            String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).toString().replaceAll("::"," ");
+                                            steps.append(" in parallel with "+parOrParrStep+",\n");
                                         }
                                         stepName = steps.toString();
                                     } else if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seq") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("par") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seqr") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("parr")){
-                                        stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).toString().split("::")[0];
+                                        stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).toString().replaceAll("::"," ");
                                     }
                                     if (stepName!=null){
                                         stepName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, stepName);
                                         stepName = stepName.replaceAll(UNDERSCORE,SPACE);
-                                        if (j==0){
-                                            sb.append(BLANK+stepName);
-                                        } else {
-                                            sb.append(",\nthen "+stepName);
-                                        }
+                                        sb.append(BLANK+stepName+",\n");
                                     }
-                                    j++;
                                 }
-                                sb.append(", ");
-                                sb.append("\nthen"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
+                                sb.append("Then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
                             } else {
-                                sb.append("then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
+                                sb.append("Then"+formatCondition(a.asMethodCallExpr().getArguments().get(1).toString())+".\n\n");
                             }
                         }
                         i++;
@@ -1866,25 +1836,33 @@ public class PetraProgram {
                         if (i==0){
                             // skip
                         } else {
-                            if (!PEdge.class.isAssignableFrom(clazz)){
+                            if (!action.isAnnotationPresent(Edge.class)){
                                 for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                     String stepName = null;
-                                    if (step.asExpressionStmt().getExpression().asMethodCallExpr().getArguments().size()==3){
-                                        // skip
-                                    } else if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
-                                        stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().split("::")[0];
+                                    if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
+                                        //stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().replaceAll("::"," ");
+                                        for (int arg=2;arg<=step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArguments().size();arg++){
+                                            String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).toString().split("::")[0];
+                                            Class clz = getClassIfSimpleNameIsUniqueInPackage(parOrParrStep);
+                                            if (clz==null){
+                                                // skip
+                                            } else {
+                                                CompilationUnitWithData x = all.get(clz);
+                                                appendToStringBuilderAndGetNextClassToProcess(clz,x.getPath(),parOrParrStep,sb);
+                                            }
+                                        }
                                     } else if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seq") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("par") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seqr") ||
                                             step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("parr")){
                                         stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).toString().split("::")[0];
-                                    }
-                                    Class clz = getClassIfSimpleNameIsUniqueInPackage(stepName);
-                                    if (clz==null){
-                                        // skip
-                                    } else {
-                                        CompilationUnitWithData x = all.get(clz);
-                                        appendToStringBuilderAndGetNextClassToProcess(clz,x.getPath(),stepName,sb);
+                                        Class clz = getClassIfSimpleNameIsUniqueInPackage(stepName);
+                                        if (clz==null){
+                                            // skip
+                                        } else {
+                                            CompilationUnitWithData x = all.get(clz);
+                                            appendToStringBuilderAndGetNextClassToProcess(clz,x.getPath(),stepName,sb);
+                                        }
                                     }
                                 }
                             }
@@ -2083,7 +2061,7 @@ public class PetraProgram {
                 impl = impl.replaceAll(var+DOT_ESCAPED,BLANK);
 
                 String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll(UNDERSCORE,SPACE);
-                sb.append("Partition "+no+". "+methodInEnglish+BLANK + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
+                sb.append(""+no+". "+methodInEnglish+BLANK + ", means, for every " + var + " in " + collectionVar + ", " + lowerCamelToEnglishForEachInSplit(impl)
                         .replaceAll("\\!", "not ")
                         .replaceAll(XOR_ESCAPED, " xor ")
                         .replaceAll("\\&\\&", " and ")
@@ -2099,7 +2077,7 @@ public class PetraProgram {
                 impl = impl.replaceAll(OPEN_BRACKET_ESCAPED, BLANK).replaceAll(CLOSED_BRACKET_ESCAPED, BLANK);
                 impl = impl.replaceAll(DOT_ESCAPED,SPACE);
                 String methodInEnglish = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE,m).replaceAll(UNDERSCORE,SPACE);
-                sb.append("Partition "+no+". "+methodInEnglish + ", means, "+lowerCamelToEnglishForEachInSplit(impl)
+                sb.append(""+no+". "+methodInEnglish + ", means, "+lowerCamelToEnglishForEachInSplit(impl)
                         .replaceAll(NOT_ESCAPED, "not ")
                         .replaceAll(XOR_ESCAPED, " or ")
                         .replaceAll(AND_ESCAPED+AND_ESCAPED, " and ")
