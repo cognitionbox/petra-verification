@@ -11,44 +11,46 @@ public interface ClothingChoiceL1 extends SystemStates {
 
     static void main(SystemStates s){
         kases(s,
-                kase(system->system.clothingUndecided(),
-                        system->system.rainyWeekdayCoatClothing() ^
-                                system.rainyWeekendCoatClothing() ^
-                                system.plainWeekendTshirtClothing() ^
-                                system.notRainyWeekdaySuitClothing() ^
-                                system.sunnyWeekendHatClothing(),
-                        system->{
-                            seq(system, ClothingChoiceL1::init);
-                            seq(system, ClothingChoiceL1::accept);
+                kase(systemStates->systemStates.clothing().undecided(),
+                        systemStates->
+                                (systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekday()) ^
+                                (systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekend()) ^
+                                (systemStates.dayAndWeather().plainWeekend() && systemStates.clothing().Tshirt()) ^
+                                (systemStates.dayAndWeather().notRainyWeekday() && systemStates.clothing().suit()) ^
+                                (systemStates.dayAndWeather().sunnyWeekend() && systemStates.clothing().hat()),
+                        systemStates->{
+                            seq(systemStates, ClothingChoiceL1::init);
+                            seq(systemStates, ClothingChoiceL1::accept);
                         })
         );
     }
 
     @Edge static void init(SystemStates s){
         kases(s,
-                kase(system->system.clothingUndecided(),
-                    system->system.rainyWeekdayUndecidedClothing(),
-                    system->{
-                        system.dayAndWeather().day().setWeekday();
-                        system.dayAndWeather().weather().setRainy();
+                kase(systemStates->systemStates.clothing().undecided(),
+                    systemStates->systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekday(),
+                    systemStates->{
+                        systemStates.dayAndWeather().day().setWeekday();
+                        systemStates.dayAndWeather().weather().setRainy();
                     })
         );
     }
 
     static void accept(SystemStates s) {
         kases(s,
-                kase(system -> system.rainyWeekdayUndecidedClothing() ^
-                                system.rainyWeekendUndecidedClothing() ^
-                                system.plainWeekendUndecidedClothing() ^
-                                system.notRainyWeekdayUndecidedClothing() ^
-                                system.sunnyWeekendUndecidedClothing(),
-                        system -> system.rainyWeekdayCoatClothing() ^
-                                system.rainyWeekendCoatClothing() ^
-                                system.plainWeekendTshirtClothing() ^
-                                system.notRainyWeekdaySuitClothing() ^
-                                system.sunnyWeekendHatClothing(),
-                        system -> {
-                            seq(system, ClothingChoiceL2::accept);
+                kase(systemStates -> (systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekday()) ^
+                                (systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekend())  ^
+                                (systemStates.dayAndWeather().plainWeekend() && systemStates.clothing().undecided())  ^
+                                (systemStates.dayAndWeather().notRainyWeekday() && systemStates.clothing().undecided())  ^
+                                (systemStates.dayAndWeather().sunnyWeekend() && systemStates.clothing().undecided()) ,
+                        systemStates->
+                                (systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekday()) ^
+                                (systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekend()) ^
+                                (systemStates.dayAndWeather().plainWeekend() && systemStates.clothing().Tshirt()) ^
+                                (systemStates.dayAndWeather().notRainyWeekday() && systemStates.clothing().suit()) ^
+                                (systemStates.dayAndWeather().sunnyWeekend() && systemStates.clothing().hat()),
+                        systemStates -> {
+                            seq(systemStates, ClothingChoiceL2::accept);
                         })
         );
     }

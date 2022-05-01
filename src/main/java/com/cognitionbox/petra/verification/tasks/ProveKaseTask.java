@@ -11,14 +11,16 @@ public class ProveKaseTask extends BaseVerificationTask {
         private final int count;
         private final Expression kase;
         private final CompilationUnitWithData cu;
+        private final Class viewClass;
 
     private final Set<List<String>> overlappingStates;
-        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu, Set<List<String>> overlappingStates) {
+        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu, Set<List<String>> overlappingStates, Class viewClass) {
             this.methodName = methodName;
             this.count = count;
             this.kase = kase;
             this.cu = cu;
             this.overlappingStates = overlappingStates;
+            this.viewClass = viewClass;
         }
 
         @Override
@@ -42,7 +44,11 @@ public class ProveKaseTask extends BaseVerificationTask {
             return overlappingStates.isEmpty();
         }
 
-    public Set<List<String>> getOverlappingStates() {
-        return overlappingStates;
-    }
+        public Set<List<String>> getOverlappingStates() {
+            return overlappingStates;
+        }
+
+        public Class getViewClass() {
+            return viewClass;
+        }
     }

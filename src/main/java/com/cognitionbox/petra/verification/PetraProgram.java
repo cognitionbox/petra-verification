@@ -159,6 +159,7 @@ public class PetraProgram {
             }
             for (Integer x : indicies){
                 r = r.replaceAll(fields.get(x).getName()+OPEN_CLOSED_BRACKETS_ESCAPED,"list.get"+OPEN_BRACKET+x+CLOSED_BRACKET);
+                r = r.replaceAll(fields.get(x).getName(),"list.get"+OPEN_BRACKET+x+CLOSED_BRACKET); // hack!!! only on of these two lines should be enough
             }
             r = r.replaceAll(OPEN_CLOSED_BRACKETS_ESCAPED,DOUBLE_QUOTE_ESCAPED+CLOSED_BRACKET);
         }
@@ -831,8 +832,8 @@ public class PetraProgram {
                         .getBody()
                         .asBlockStmt().addStatement(i,seq);
                 MethodCallExpr kse = new MethodCallExpr("kase");
-                kse.addArgument(preConjunction.toString());
-                kse.addArgument(postConjunction.toString());
+                kse.addArgument("x->"+preConjunction.toString());
+                kse.addArgument("x->"+postConjunction.toString());
                 kse.addArgument(new LambdaExpr(new Parameter(), new BlockStmt()));
                 kse.addArgument("ASSUMED");
                 kases.addArgument(kse);
@@ -930,8 +931,8 @@ public class PetraProgram {
                 }
 
                 MethodCallExpr kse = new MethodCallExpr("kase");
-                kse.addArgument(preConjunction.toString());
-                kse.addArgument(postConjunction.toString());
+                kse.addArgument("x->"+preConjunction.toString());
+                kse.addArgument("x->"+postConjunction.toString());
                 kse.addArgument(new LambdaExpr(new Parameter(), new BlockStmt()));
                 kse.addArgument("ASSUMED");
                 kases.addArgument(kse);
@@ -1008,7 +1009,9 @@ public class PetraProgram {
                         StringBuilder kasesPostconditionDisjunction = new StringBuilder();
                         Set<String> pres = new HashSet<>();
                         Set<String> posts = new HashSet<>();
-                        for (Expression k : lambdaExpr.getBody().asBlockStmt().getStatements().get(0).asExpressionStmt().getExpression().asMethodCallExpr().getArguments()) {
+                        List<Expression> ks = lambdaExpr.getBody().asBlockStmt().getStatements().get(0).asExpressionStmt().getExpression().asMethodCallExpr().getArguments();
+                        int noOfkases = ks.size();
+                        for (Expression k : ks) {
                             if (count2==0){
                                 count2++;
                                 continue;
@@ -1048,8 +1051,13 @@ public class PetraProgram {
                                 } else {
                                     post = post.split(ARROW)[1].trim();
                                 }
-                                kasesPreconditionDisjunction.append(z+" -> "+pre);
-                                kasesPostconditionDisjunction.append(z+" -> "+post);
+                                if (noOfkases-1>1){
+                                    kasesPreconditionDisjunction.append(z+" -> ("+pre+")");
+                                    kasesPostconditionDisjunction.append(z+" -> ("+post+")");
+                                } else if (noOfkases-1==1){
+                                    kasesPreconditionDisjunction.append(z+" -> "+pre);
+                                    kasesPostconditionDisjunction.append(z+" -> "+post);
+                                }
                             } else {
                                 String pre;
                                 if (k.asMethodCallExpr().getName().asString().equals("invkase")){
@@ -1085,8 +1093,8 @@ public class PetraProgram {
                                 } else {
                                     post = post.split(ARROW)[1].trim();
                                 }
-                                kasesPreconditionDisjunction.append(" ^ "+pre);
-                                kasesPostconditionDisjunction.append(" ^ "+post);
+                                kasesPreconditionDisjunction.append(" ^ ("+pre+")");
+                                kasesPostconditionDisjunction.append(" ^ ("+post+")");
                             }
                             count2++;
                         }
@@ -1214,7 +1222,9 @@ public class PetraProgram {
                         Set<String> pres = new HashSet<>();
                         Set<String> posts = new HashSet<>();
                         String x = lambdaExpr.getBody().asBlockStmt().getStatements().get(0).asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).toString();
-                        for (Expression k : lambdaExpr.getBody().asBlockStmt().getStatements().get(0).asExpressionStmt().getExpression().asMethodCallExpr().getArguments()) {
+                        List<Expression> ks = lambdaExpr.getBody().asBlockStmt().getStatements().get(0).asExpressionStmt().getExpression().asMethodCallExpr().getArguments();
+                        int noOfkases = ks.size();
+                        for (Expression k : ks) {
                             if (count2==0){
                                 count2++;
                                 continue;
@@ -1254,8 +1264,13 @@ public class PetraProgram {
                                 } else {
                                     post = post.split(ARROW)[1].trim();
                                 }
-                                kasesPreconditionDisjunction.append(z+" -> "+pre);
-                                kasesPostconditionDisjunction.append(z+" -> "+post);
+                                if (noOfkases-1>1){
+                                    kasesPreconditionDisjunction.append(z+" -> ("+pre+")");
+                                    kasesPostconditionDisjunction.append(z+" -> ("+post+")");
+                                } else if (noOfkases-1==1){
+                                    kasesPreconditionDisjunction.append(z+" -> "+pre);
+                                    kasesPostconditionDisjunction.append(z+" -> "+post);
+                                }
                             } else {
                                 String pre;
                                 if (k.asMethodCallExpr().getName().asString().equals("invkase")){
@@ -1281,8 +1296,8 @@ public class PetraProgram {
                                 } else {
                                     post = post.split(ARROW)[1].trim();
                                 }
-                                kasesPreconditionDisjunction.append(" ^ "+pre);
-                                kasesPostconditionDisjunction.append(" ^ "+post);
+                                kasesPreconditionDisjunction.append(" ^ ("+pre+")");
+                                kasesPostconditionDisjunction.append(" ^ ("+post+")");
                             }
                             count2++;
                         }
@@ -1389,7 +1404,7 @@ public class PetraProgram {
     }
 
     static String getImplementation(String preCondition, CompilationUnitWithData graphTerm) {
-        String pre = preCondition;
+        String pre = preCondition.replaceAll(OPEN_BRACKET_ESCAPED,"").replaceAll(CLOSED_BRACKET_ESCAPED,"");
         Set<String> preSet = new HashSet<>(Arrays.asList(pre.split(XOR)).stream().map(s->s.replaceAll(OPEN_CLOSED_BRACKETS_ESCAPED,BLANK)).collect(Collectors.toList()));
         // abstraction / concretion check
         AtomicReference<Class> preRes2 = new AtomicReference();
@@ -1515,28 +1530,13 @@ public class PetraProgram {
             String viewName = graph.getClazz().getSimpleName();
             theViewClass = getClassIfSimpleNameIsUniqueInPackage(viewName);
             viewTruth =  PetraProgram.getViewTruth(theViewClass);
-            int preconditionDotCount = getMatchesCount(k.asMethodCallExpr().getArgument(0).toString(),'.');
-            int preconditionXorCount = getMatchesCount(k.asMethodCallExpr().getArgument(0).toString(),'^');
-            if (preconditionDotCount==1 || k.asMethodCallExpr().getArgument(0).toString().contains("forall") ||  preconditionDotCount==preconditionXorCount+1){
-                P = resolveImplementation(k.asMethodCallExpr().getArgument(0).toString(), theViewClass);
-            } else if (preconditionDotCount==2){
-                P = k.asMethodCallExpr().getArgument(0).toString().split(ARROW)[1].trim().split(DOT_ESCAPED,2)[1];
-                throw new IllegalArgumentException("precondition cannot go this deep!");
-            } else if (preconditionDotCount>2){
-                throw new IllegalArgumentException("precondition cannot go this deep!");
-            }
 
-            int postconditionDotCount = getMatchesCount(k.asMethodCallExpr().getArgument(1).toString(),'.');
-            int postconditionXorCount = getMatchesCount(k.asMethodCallExpr().getArgument(1).toString(),'^');
-            if (postconditionDotCount==1 || k.asMethodCallExpr().getArgument(1).toString().contains("forall") || postconditionDotCount==postconditionXorCount+1){
-                Q = resolveImplementation(k.asMethodCallExpr().getArgument(1).toString(), theViewClass);
-            } else if (postconditionDotCount==2){
-                Q = k.asMethodCallExpr().getArgument(1).toString().split(ARROW)[1].trim().split(DOT_ESCAPED,2)[1];
-                throw new IllegalArgumentException("precondition cannot go this deep!");
-            } else if (postconditionDotCount>2){
-                throw new IllegalArgumentException("postcondition cannot go this deep!");
-            }
+            String pre = k.asMethodCallExpr().getArgument(0).toString();
+            String post = k.asMethodCallExpr().getArgument(1).toString();
+            P = resolve(pre,theViewClass);
+            Q = resolve(post,theViewClass);
 
+            // init symbolic state by filtering truth with pre-condition of kase
             graph.getSymbolicStates().put(kaseNo,
                     new SymbolicState(filterStatesUsingBooleanPrecondition(
                             viewTruth.getSymbolicStates(),
@@ -1600,12 +1600,15 @@ public class PetraProgram {
 //                    }
                 }
 
-                String siP = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
+                String pre = si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
                         .asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0) // the kase
-                        .asMethodCallExpr().getArgument(0).toString(),theCastClass);
-                String siQ = resolveImplementation(si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
+                        .asMethodCallExpr().getArgument(0).toString();
+                String post = si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatement(0)
                         .asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0) // the kase
-                        .asMethodCallExpr().getArgument(1).toString(),theCastClass);
+                        .asMethodCallExpr().getArgument(1).toString();
+                String siP = resolve(pre,theViewClass);
+                String siQ = resolve(post,theViewClass);
+
                 Set<List<String>> preSet = filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), siP, theViewClass);
                 if (si.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asLambdaExpr().getBody().asBlockStmt().getStatements().size()==1 &&
                         (!graph.getSymbolicStates().get(kaseNo).isForall() && preSet.containsAll(graph.getSymbolicStates().get(kaseNo).getSymbolicStates()))) {
@@ -1832,7 +1835,7 @@ public class PetraProgram {
                                         if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
                                             //stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(0).asMethodCallExpr().getArgument(1).toString().replaceAll("::"," ");
                                             for (int arg=2;arg<=step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).asMethodCallExpr().getArguments().size();arg++){
-                                                String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).toString().split("::")[1];
+                                                String parOrParrStep = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(arg).asMethodCallExpr().getArgument(1).toString().split("::")[0];
                                                 Class clz = getClassIfSimpleNameIsUniqueInPackage(parOrParrStep);
                                                 if (clz==null){
                                                     // skip
@@ -1845,7 +1848,7 @@ public class PetraProgram {
                                                 step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("par") ||
                                                 step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("seqr") ||
                                                 step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("parr")){
-                                            stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).toString().split("::")[1];
+                                            stepName = step.asExpressionStmt().getExpression().asMethodCallExpr().getArgument(1).toString().split("::")[0];
                                             Class clz = getClassIfSimpleNameIsUniqueInPackage(stepName);
                                             if (clz==null){
                                                 // skip
@@ -1870,7 +1873,7 @@ public class PetraProgram {
         }
     }
 
-    private static int getMatchesCount(String someString, char toCount){
+    static int getMatchesCount(String someString, char toCount){
         int count = 0;
         for (int i = 0; i < someString.length(); i++) {
             if (someString.charAt(i) == toCount) {
@@ -2096,5 +2099,40 @@ public class PetraProgram {
             superinterfaces.add(c);
             collectAllSuperInterfacesRecursively(c, superinterfaces);
         }
+    }
+
+//    static String resolveImplementation(String precondition, Class theViewClass) {
+//
+////        String pre = precondition.split(ARROW)[1].trim().split(DOT_ESCAPED,2)[1];
+////        int maxDotCount = 0;
+////        for (String c : new String[]{"\\&\\&","\\|\\|","\\^","\\&","\\|"}){
+////            for (String split : pre.split(c)){
+////                int count = split.split("\\.").length;
+////                if (count>maxDotCount){
+////                    maxDotCount = count;
+////                }
+////            }
+////        }
+////        if (maxDotCount==1 || precondition.contains("forall")){// ||  preconditionDotCount==preconditionXorCount+1){
+////            return resolveImplementation(precondition, theViewClass);
+////        } else if (maxDotCount<=3){
+//            if (true){
+//                //return precondition.split(ARROW)[1].trim().replaceAll(theViewClass.getSimpleName().toLowerCase().substring(0,1)+"\\.","");
+//                return precondition.split(ARROW)[1].trim();
+//            }
+////        } else if (maxDotCount>3){
+////            throw new IllegalArgumentException("precondition cannot go this deep!");
+////        }
+//
+    public static String resolve(String condition, Class theViewClass){
+        int dotCount = getMatchesCount(condition,'.');
+        int xorCount = getMatchesCount(condition,'^');
+        if (dotCount==1 || condition.contains("forall") ||  dotCount==xorCount+1){
+            return resolveImplementation(condition, theViewClass);
+        } else if (dotCount>1){
+            String var = condition.split(ARROW)[0].trim();
+            return condition.split(ARROW)[1].trim().replaceAll(var+"\\.","");//.split(DOT_ESCAPED,2)[1];
+        }
+        return null;
     }
 }

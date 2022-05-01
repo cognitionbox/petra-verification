@@ -12,35 +12,35 @@ public interface ClothingChoiceL2 extends SystemStates {
 
     @Edge static void accept(SystemStates s) {
         kases(s,
-                kase(system -> system.rainyWeekdayUndecidedClothing(),
-                        system -> system.rainyWeekdayCoatClothing(),
-                        system -> {
-                            system.clothing().choiceEnum().set(ClothingEnum.COAT);
-                            printChoice(system.dayAndWeather(),system.clothing());
+                kase(systemStates -> systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekday(),
+                        systemStates -> systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekday(),
+                        systemStates -> {
+                            systemStates.clothing().choiceEnum().set(ClothingEnum.COAT);
+                            printChoice(systemStates.dayAndWeather(),systemStates.clothing());
                         }),
-                kase(system -> system.rainyWeekendUndecidedClothing(),
-                        system -> system.rainyWeekendCoatClothing(),
-                        system -> {
-                            system.clothing().choiceEnum().set(ClothingEnum.COAT);
-                            printChoice(system.dayAndWeather(),system.clothing());
+                kase(systemStates -> systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekend(),
+                        systemStates -> systemStates.clothing().coat() && systemStates.dayAndWeather().rainyWeekend(),
+                        systemStates -> {
+                            systemStates.clothing().choiceEnum().set(ClothingEnum.COAT);
+                            printChoice(systemStates.dayAndWeather(),systemStates.clothing());
                         }),
-                kase(system -> system.plainWeekendUndecidedClothing(),
-                        system -> system.plainWeekendTshirtClothing(),
-                        system -> {
-                            system.clothing().choiceEnum().set(ClothingEnum.T_SHIRT);
-                            printChoice(system.dayAndWeather(),system.clothing());
+                kase(systemStates -> systemStates.dayAndWeather().plainWeekend() && systemStates.clothing().undecided(),
+                        systemStates -> systemStates.dayAndWeather().plainWeekend() && systemStates.clothing().Tshirt(),
+                        systemStates -> {
+                            systemStates.clothing().choiceEnum().set(ClothingEnum.T_SHIRT);
+                            printChoice(systemStates.dayAndWeather(),systemStates.clothing());
                         }),
-                kase(system -> system.notRainyWeekdayUndecidedClothing(),
-                        system -> system.notRainyWeekdaySuitClothing(),
-                        system -> {
-                            system.clothing().choiceEnum().set(ClothingEnum.SUIT);
-                            printChoice(system.dayAndWeather(),system.clothing());
+                kase(systemStates -> systemStates.dayAndWeather().notRainyWeekday() && systemStates.clothing().undecided() ,
+                        systemStates -> systemStates.dayAndWeather().notRainyWeekday() && systemStates.clothing().suit(),
+                        systemStates -> {
+                            systemStates.clothing().choiceEnum().set(ClothingEnum.SUIT);
+                            printChoice(systemStates.dayAndWeather(),systemStates.clothing());
                         }),
-                kase(system -> system.sunnyWeekendUndecidedClothing(),
-                        system -> system.sunnyWeekendHatClothing(),
-                        system -> {
-                            system.clothing().choiceEnum().set(ClothingEnum.HAT);
-                            printChoice(system.dayAndWeather(),system.clothing());
+                kase(systemStates -> systemStates.dayAndWeather().sunnyWeekend() && systemStates.clothing().undecided(),
+                        systemStates -> systemStates.dayAndWeather().sunnyWeekend() && systemStates.clothing().hat(),
+                        systemStates -> {
+                            systemStates.clothing().choiceEnum().set(ClothingEnum.HAT);
+                            printChoice(systemStates.dayAndWeather(),systemStates.clothing());
                         })
         );
     }

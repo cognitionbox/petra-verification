@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.cognitionbox.petra.verification.Strings.ARROW;
+import static com.cognitionbox.petra.verification.Strings.DOT_ESCAPED;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -88,9 +90,9 @@ public class Verification {
                                 theViewClass = superInterface;
                                 theCastClass = theViewClass;
                                 // prove kases are xor
-                                String siP = PetraProgram.resolveImplementation(kase.asMethodCallExpr().getArgument(0).toString(), theCastClass);
+                                String pre = kase.asMethodCallExpr().getArgument(0).toString();
                                 SymbolicState viewTruth = PetraProgram.getViewTruth(theViewClass);
-                                Set<List<String>> preSet = PetraProgram.filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), siP, theViewClass);
+                                Set<List<String>> preSet = PetraProgram.filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), PetraProgram.resolve(pre,theViewClass), theViewClass);
                                 Set<List<String>> copy = new HashSet<>(preSet);
                                 copy.retainAll(kaseSymbolicStates);
                                 if (!copy.isEmpty()) {
@@ -102,7 +104,7 @@ public class Verification {
                                 e.printStackTrace();
                             }
 
-                            tasks.add(new ProveKaseTask(action.getName().asString(), count, kase, cu, overlappingStates));
+                            tasks.add(new ProveKaseTask(action.getName().asString(), count, kase, cu, overlappingStates,superInterface));
                             count++;
                         }
                     }
