@@ -1,10 +1,12 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
 import com.cognitionbox.petra.annotations.Primative;
+import com.cognitionbox.petra.annotations.View;
 
 import java.io.File;
 
 @Primative
+@View
 public interface LicenseFile
 {
     void setFile(File f);

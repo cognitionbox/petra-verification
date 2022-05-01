@@ -3,19 +3,22 @@ package com.cognitionbox.petra.verification.tasks;
 import com.cognitionbox.petra.verification.CompilationUnitWithData;
 import com.github.javaparser.ast.expr.Expression;
 
+import java.util.List;
+import java.util.Set;
+
 public class ProveKaseTask extends BaseVerificationTask {
         private final String methodName;
         private final int count;
         private final Expression kase;
         private final CompilationUnitWithData cu;
 
-    private final boolean kasesAreXOR;
-        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu, boolean kasesAreXOR) {
+    private final Set<List<String>> overlappingStates;
+        public ProveKaseTask(String methodName, int count, Expression kase, CompilationUnitWithData cu, Set<List<String>> overlappingStates) {
             this.methodName = methodName;
             this.count = count;
             this.kase = kase;
             this.cu = cu;
-            this.kasesAreXOR = kasesAreXOR;
+            this.overlappingStates = overlappingStates;
         }
 
         @Override
@@ -36,6 +39,10 @@ public class ProveKaseTask extends BaseVerificationTask {
         }
 
         public boolean isKasesAreXOR() {
-            return kasesAreXOR;
+            return overlappingStates.isEmpty();
         }
+
+    public Set<List<String>> getOverlappingStates() {
+        return overlappingStates;
+    }
     }

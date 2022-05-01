@@ -1,12 +1,13 @@
 package com.cognitionbox.petra.examples.nesting;
 
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.examples.nesting.anotherpkg.G2;
 import com.cognitionbox.petra.examples.nesting.anotherpkg2.G3;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public interface G1 extends PGraph<SomeView2> {
+@View public interface G1 extends SomeView2 {
     static void accept(SomeView2 f) {
         kases(f,kase(someView2->someView2.w(), someView2->someView2.z(), someView2->{
             seq(someView2, G2::accept);

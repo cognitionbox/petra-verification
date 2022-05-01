@@ -1,12 +1,14 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.examples.clothingchoice.impl.ClothingEnum;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public interface ClothingChoiceL2 extends PGraph<SystemStates> {
+@View
+public interface ClothingChoiceL2 extends SystemStates {
 
     @Edge static void accept(SystemStates s) {
         kases(s,

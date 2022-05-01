@@ -1,10 +1,11 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
-public interface DeleteExpiredLicenses extends PGraph<Licenses> {
+@View public interface DeleteExpiredLicenses extends Licenses {
    static void accept(Licenses x) {
         kases(x,
                 kase(licenses->licenses.isEmpty(),

@@ -1,8 +1,10 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.collection.PCollection;
 
 // This state space needs reviewing
+@View
 public interface Licenses {
     PCollection<License> licenses();
 

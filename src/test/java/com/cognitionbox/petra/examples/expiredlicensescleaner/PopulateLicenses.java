@@ -1,6 +1,7 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
 import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.step.PEdge;
 import com.cognitionbox.petra.lang.step.PGraph;
 
@@ -14,7 +15,8 @@ import static com.cognitionbox.petra.lang.Petra.kase;
 import static com.cognitionbox.petra.lang.Petra.kases;
 
 // this level cares about emptyness or (expired ^ not expired) but not deleted
- public interface PopulateLicenses extends PGraph<Licenses> {
+@View
+public interface PopulateLicenses extends Licenses {
     @Edge static void accept(Licenses l) {
         kases(l,
                 kase(licenses->licenses.isEmpty(),
