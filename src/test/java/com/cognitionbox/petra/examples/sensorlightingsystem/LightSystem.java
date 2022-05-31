@@ -25,8 +25,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
                         })
         );
     }
-    // dont think we need the other kases here as at the root object if theres no match nothing will get triggered, hence its a skip already,
-    // however we should explicilty handle all kases...? is it good enough just to say, if night and off change to on, and if day and on, change to off, i think so
+
     static void updateLight(LightSystem l){
         kases(l,
                 kase(lightSystem->lightSystem.isDarkAndLightOff(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
