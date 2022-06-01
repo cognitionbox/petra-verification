@@ -25,9 +25,11 @@ public interface Sensor {
 
     @Edge static void updateSensorReading(Sensor s){
         kases(s,kase(
-                sensor->sensor.greaterThanOrEqualTo10000Lumens() ^ sensor.lessThanOrEqualTo10000Lumens(),
-                sensor->sensor.greaterThanOrEqualTo10000Lumens() ^ sensor.lessThanOrEqualTo10000Lumens(),
-                sensor->sensor.lumens().set((int) Math.sin(Math.PI/LocalTime.now().getSecond())))
+                sensor->true,
+                sensor->true,
+                sensor->{sensor.lumens().set((int) Math.sin(Math.PI/LocalTime.now().getSecond()));})
         );
     }
+
+    // create a getLumens method and calculate the lumens based on a simulated hourly move, where a 1 sec time period will represent 1 hour in the simulation
 }

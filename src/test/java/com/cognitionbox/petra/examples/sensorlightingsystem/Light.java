@@ -31,10 +31,6 @@ import static com.cognitionbox.petra.lang.Petra.*;
     }
 
     @Edge static void skip(Light l){
-        kases(l,kase(
-                light->light.on() ^ light.off(),
-                light->light.on() ^ light.off(),
-                light->{}
-        ));
+        kases(l,kase(light->true,light->true,light->{}));
     }
 }

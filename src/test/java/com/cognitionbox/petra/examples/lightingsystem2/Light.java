@@ -25,8 +25,8 @@ import static com.cognitionbox.petra.lang.Petra.*;
         kases(l,
                 kase(light->light.off(), light->light.on(),light->{
                     join(light,
-                            par(light_->light_.button(),Button::buttonOn),
-                            par(light_->light_.power(),Power::powerOn));
+                            par(lht->lht.button(),Button::buttonOn),
+                            par(lht->lht.power(),Power::powerOn));
                     //seq(light,Light::print);
                 }));
     }

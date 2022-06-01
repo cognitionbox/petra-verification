@@ -19,7 +19,7 @@ public interface Button {
 
     @Edge static void buttonOff(Button b){
         kases(b,
-                kase(button->button.off() ^ button.on(), button->button.off(), button->{
+                kase(button->true, button->button.off(), button->{
                     button.active().set(false);
                 })
         );
@@ -28,7 +28,7 @@ public interface Button {
     @Edge
     static void buttonOn(Button b){
         kases(b,
-                kase(button->button.off() ^ button.on(), button->button.on(), button->{
+                kase(button->true, button->button.on(), button->{
                     button.active().set(true);
                 })
         );

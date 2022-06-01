@@ -16,8 +16,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
     static void updateSystem(LightSystem l){
         kases(l,
                 kase(
-                        lightSystem->lightSystem.isDarkAndLightOff() ^ lightSystem.isDarkAndLightOn() ^ lightSystem.isLightAndLightOff() ^ lightSystem.isLightAndLightOn(),
-                        lightSystem->lightSystem.isDarkAndLightOff() ^ lightSystem.isDarkAndLightOn() ^ lightSystem.isLightAndLightOff() ^ lightSystem.isLightAndLightOn(),
+                        lightSystem->true,lightSystem->true,
                         lightSystem->{
                             seq(lightSystem.threshold(), Threshold::updateSensorReading);
                             seq(lightSystem.light(), Light::skip);

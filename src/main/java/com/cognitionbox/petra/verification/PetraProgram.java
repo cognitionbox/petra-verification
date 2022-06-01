@@ -1058,6 +1058,23 @@ public class PetraProgram {
                                     kasesPreconditionDisjunction.append(z+" -> "+pre);
                                     kasesPostconditionDisjunction.append(z+" -> "+post);
                                 }
+
+//                                try {
+//                                    cu.addInOutSymbolicStatesMappingForKase(task.getCount(),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(task.getViewClass()).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(pre,task.getViewClass()),
+//                                                    task.getViewClass()),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(task.getViewClass()).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(post,task.getViewClass()),
+//                                                    task.getViewClass()));
+//                                } catch (ClassNotFoundException e){
+//                                    e.printStackTrace();
+//                                }
+
                             } else {
                                 String pre;
                                 if (k.asMethodCallExpr().getName().asString().equals("invkase")){
@@ -1095,6 +1112,22 @@ public class PetraProgram {
                                 }
                                 kasesPreconditionDisjunction.append(" ^ ("+pre+")");
                                 kasesPostconditionDisjunction.append(" ^ ("+post+")");
+
+//                                try {
+//                                    cu.addInOutSymbolicStatesMappingForKase(task.getCount(),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(task.getViewClass()).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(pre,task.getViewClass()),
+//                                                    task.getViewClass()),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(task.getViewClass()).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(post,task.getViewClass()),
+//                                                    task.getViewClass()));
+//                                } catch (ClassNotFoundException e){
+//                                    e.printStackTrace();
+//                                }
                             }
                             count2++;
                         }
@@ -1271,6 +1304,23 @@ public class PetraProgram {
                                     kasesPreconditionDisjunction.append(z+" -> "+pre);
                                     kasesPostconditionDisjunction.append(z+" -> "+post);
                                 }
+
+//                                try {
+//                                    cu.addInOutSymbolicStatesMappingForKase(task.getCount(),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(c).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(pre,c),
+//                                                    c),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(c).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(post,c),
+//                                                    c));
+//                                } catch (ClassNotFoundException e){
+//                                    e.printStackTrace();
+//                                }
+
                             } else {
                                 String pre;
                                 if (k.asMethodCallExpr().getName().asString().equals("invkase")){
@@ -1298,6 +1348,22 @@ public class PetraProgram {
                                 }
                                 kasesPreconditionDisjunction.append(" ^ ("+pre+")");
                                 kasesPostconditionDisjunction.append(" ^ ("+post+")");
+
+//                                try {
+//                                    cu.addInOutSymbolicStatesMappingForKase(task.getCount(),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(c).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(pre,c),
+//                                                    c),
+//                                            filterStatesUsingBooleanPrecondition(
+//                                                    getViewTruth(c).getSymbolicStates(),
+//                                                    false,
+//                                                    resolve(post,c),
+//                                                    c));
+//                                } catch (ClassNotFoundException e){
+//                                    e.printStackTrace();
+//                                }
                             }
                             count2++;
                         }
@@ -2129,10 +2195,9 @@ public class PetraProgram {
         int xorCount = getMatchesCount(condition,'^');
         if (dotCount==1 || condition.contains("forall") ||  dotCount==xorCount+1){
             return resolveImplementation(condition, theViewClass);
-        } else if (dotCount>1){
+        } else { // covers the case where predicate name at local level is used or if true is used
             String var = condition.split(ARROW)[0].trim();
             return condition.split(ARROW)[1].trim().replaceAll(var+"\\.","");//.split(DOT_ESCAPED,2)[1];
         }
-        return null;
     }
 }

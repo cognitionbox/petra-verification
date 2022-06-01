@@ -13,6 +13,7 @@ public class CompilationUnitWithData implements Serializable {
     private final List<Expression> kases = new ArrayList<>();
     private final Map<Expression,Boolean> status = new HashMap<>();
     private final Map<Integer, SymbolicState> symbolicStates = new HashMap<>();
+    private final Map<Integer, Map<Set<List<String>>,Set<List<String>>>> kaseSymbolicStateMappings = new HashMap<>();
     private CompilationUnit compilationUnit;
     private final Class clazz;
     private boolean isEdge;
@@ -32,6 +33,17 @@ public class CompilationUnitWithData implements Serializable {
 
     public Map<Integer, SymbolicState> getSymbolicStates() {
         return symbolicStates;
+    }
+
+    public Map<Integer, Map<Set<List<String>>,Set<List<String>>>> getKaseSymbolicStateMappings() {
+        return kaseSymbolicStateMappings;
+    }
+
+    public void addInOutSymbolicStatesMappingForKase(int kase, Set<List<String>> in, Set<List<String>> out) {
+        if (!kaseSymbolicStateMappings.containsKey(kase)){
+            kaseSymbolicStateMappings.put(kase, new HashMap<>());
+        }
+        kaseSymbolicStateMappings.get(kase).put(in,out);
     }
 
     public CompilationUnit getCompilationUnit() {

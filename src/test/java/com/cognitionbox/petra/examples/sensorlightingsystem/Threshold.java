@@ -29,12 +29,6 @@ public interface Threshold {
     }
 
     static void updateSensorReading(Threshold t){
-        kases(t,kase(
-                threshold->threshold.isLight() ^ threshold.isDark(),
-                threshold->threshold.isLight() ^ threshold.isDark(),
-                threshold->{
-                    seq(threshold.sensor(),Sensor::updateSensorReading);
-                }
-        ));
+        kases(t,kase(threshold->true,threshold->true,threshold->{seq(threshold.sensor(),Sensor::updateSensorReading);}));
     }
 }
