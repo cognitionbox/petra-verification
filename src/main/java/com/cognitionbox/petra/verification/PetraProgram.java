@@ -1742,7 +1742,15 @@ public class PetraProgram {
                 o++;
             }
             Set<List<String>> postSet = filterStatesUsingBooleanPrecondition(viewTruth.getSymbolicStates(), viewTruth.isForall(), Q, theViewClass);
-            if (postSet.containsAll(graph.getSymbolicStates().get(kaseNo).getSymbolicStates())) {
+            // only situation thats not allowed is when the symbolic state and post condition is disjoint
+            if (
+                    //postSet.containsAll(graph.getSymbolicStates().get(kaseNo).getSymbolicStates()) ||
+                    /* addition of this case to allow either the contract or impl to be the constraint,
+                      in case of contract constraining the impl, the mappings are simply discarded
+                      in case of impl contraining the contract, programmer is forced to code for routes that don't exist,
+                      hence we should not need this case, hence we remove postSet.containsAll(graph.getSymbolicStates().get(kaseNo).getSymbolicStates())) and
+                      just code our programs better!!! */
+                    graph.getSymbolicStates().get(kaseNo).getSymbolicStates().containsAll(postSet)) {
 
                 LOG.debug("before PROVE_KASE applied to "+graph.getClazz().getSimpleName()+" kase:"+kaseNo);
                 LOG.debug(k.toString());

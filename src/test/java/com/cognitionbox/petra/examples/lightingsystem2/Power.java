@@ -21,7 +21,7 @@ public interface Power {
 
     @Edge static void powerOff(Power b){
         kases(b,
-                kase(power->power.off() ^ power.on(), power->power.off(), button->{
+                kase(power->true, power->power.off(), button->{
                     button.active().set(false);
                 })
         );
@@ -30,7 +30,7 @@ public interface Power {
     @Edge
     static void powerOn(Power b){
         kases(b,
-                kase(power->power.off() ^ power.on(), power->power.on(), button->{
+                kase(power->true, power->power.on(), button->{
                     button.active().set(true);
                 })
         );

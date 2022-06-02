@@ -1,10 +1,10 @@
 package com.cognitionbox.petra.examples.sensorlightingsystem;
 
-import static com.cognitionbox.petra.lang.Petra.start;
+import static com.cognitionbox.petra.lang.Petra.infiniteStart;
 
 public class LightingSystemMain {
     public static void main(String... args){
-        //infiniteStart(LightSystem::updateSystem, LightSystem.class,1000);
+        infiniteStart(LightSystem::updateLight, LightSystem.class,1000);
 
         // we to check the time interval, and make sure the period of the check aligns with the interval,
         // so we dont miss any states.

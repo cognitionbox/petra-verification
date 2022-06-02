@@ -13,7 +13,8 @@ import static com.cognitionbox.petra.lang.Petra.kases;
 @Primative
 @View
 public interface Sensor {
-    PInteger lumens();
+    // assumed
+    @Edge default PInteger lumens(){return new PInteger((int) ((Math.sin( LocalTime.now().getSecond() * ((2*Math.PI)/60))*10000)+10000));}
 
     default boolean greaterThanOrEqualTo10000Lumens(){
         return lumens().gt(new PInteger(10000));
@@ -22,14 +23,4 @@ public interface Sensor {
     default boolean lessThanOrEqualTo10000Lumens(){
         return lumens().lt(new PInteger(10000));
     }
-
-    @Edge static void updateSensorReading(Sensor s){
-        kases(s,kase(
-                sensor->true,
-                sensor->true,
-                sensor->{sensor.lumens().set((int) Math.sin(Math.PI/LocalTime.now().getSecond()));})
-        );
-    }
-
-    // create a getLumens method and calculate the lumens based on a simulated hourly move, where a 1 sec time period will represent 1 hour in the simulation
 }

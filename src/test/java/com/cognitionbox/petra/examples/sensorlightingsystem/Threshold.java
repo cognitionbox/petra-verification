@@ -17,18 +17,8 @@ public interface Threshold {
         return sensor().lessThanOrEqualTo10000Lumens();
     }
 
-    // @Skip, create new annotation, methods have name with skip prefix
     @Edge
-    static void skipIfLight(Threshold t){
-        kases(t,kase(threshold->threshold.isLight(), threshold->threshold.isLight(), time->{}));
-    }
-
-    // @Skip, create new annotation, methods have name with skip prefix
-    @Edge static void skipIfDark(Threshold t){
-        kases(t,kase(threshold->threshold.isDark(), threshold->threshold.isDark(), time->{}));
-    }
-
-    static void updateSensorReading(Threshold t){
-        kases(t,kase(threshold->true,threshold->true,threshold->{seq(threshold.sensor(),Sensor::updateSensorReading);}));
+    static void skip(Threshold t){
+        kases(t,kase(threshold->true, threshold->true, time->{}));
     }
 }
