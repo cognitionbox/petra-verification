@@ -9,7 +9,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
     Button button();
     Power power();
 
-    default boolean off(){ return button().off() && power().off();}
+    default boolean off(){ return button().off() || power().off();}
     default boolean on(){return button().on() && power().on();}
 
     static void lightOff(Light l){

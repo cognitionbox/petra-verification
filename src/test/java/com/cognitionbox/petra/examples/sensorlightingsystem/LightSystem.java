@@ -17,7 +17,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
     static void updateLight(LightSystem l){
         kases(l,
                 kase(lightSystem->lightSystem.isDarkAndLightOff(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
-                    seq(lightSystem.threshold(), Threshold::skip); // dont print skips to controlled english, requires update
+                    seq(lightSystem.threshold(), Threshold::skipIfDark); // dont print skips to controlled english, requires update
                     seq(lightSystem.light(), Light::lightOn);
                     seq(lightSystem, LightSystem::message1);
                 }),
@@ -25,7 +25,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
                     seq(lightSystem, LightSystem::message2);
                 }),
                 kase(lightSystem->lightSystem.isLightAndLightOn(), lightSystem->lightSystem.isLightAndLightOff(), lightSystem->{
-                    seq(lightSystem.threshold(), Threshold::skip); // dont print skips to controlled english, requires update
+                    seq(lightSystem.threshold(), Threshold::skipIfLight); // dont print skips to controlled english, requires update
                     seq(lightSystem.light(), Light::lightOff);
                     seq(lightSystem, LightSystem::message3);
                 }),
@@ -36,25 +36,25 @@ import static com.cognitionbox.petra.lang.Petra.*;
     }
 
     @Edge static void message1(LightSystem l){
-        kases(l,kase(lightSystem->true, lightSystem->true, lightSystem->{
+        kases(l,kase(lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
             System.out.println(lightSystem.threshold().sensor().lumens()+" Lumens. Is dark and light off, hence TURN ON.");
         }));
     }
 
     @Edge static void message2(LightSystem l){
-        kases(l,kase(lightSystem->true, lightSystem->true, lightSystem->{
+        kases(l,kase(lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
             System.out.println(lightSystem.threshold().sensor().lumens()+" Lumens. Is dark and light already on, hence no change.");
         }));
     }
 
     @Edge static void message3(LightSystem l){
-        kases(l,kase(lightSystem->true, lightSystem->true, lightSystem->{
+        kases(l,kase(lightSystem->lightSystem.isLightAndLightOff(), lightSystem->lightSystem.isLightAndLightOff(), lightSystem->{
             System.out.println(lightSystem.threshold().sensor().lumens()+" Lumens. Is light and light on, hence TURN OFF.");
         }));
     }
 
     @Edge static void message4(LightSystem l){
-        kases(l,kase(lightSystem->true, lightSystem->true, lightSystem->{
+        kases(l,kase(lightSystem->lightSystem.isLightAndLightOff(), lightSystem->lightSystem.isLightAndLightOff(), lightSystem->{
             System.out.println(lightSystem.threshold().sensor().lumens()+" Lumens. Is light and light already off, hence no change.");
         }));
     }
