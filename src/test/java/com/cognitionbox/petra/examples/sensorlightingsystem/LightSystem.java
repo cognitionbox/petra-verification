@@ -17,15 +17,16 @@ import static com.cognitionbox.petra.lang.Petra.*;
     static void updateLight(LightSystem l){
         kases(l,
                 kase(lightSystem->lightSystem.isDarkAndLightOff(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
-                    seq(lightSystem.threshold(), Threshold::skipIfDark); // dont print skips to controlled english, requires update
-                    seq(lightSystem.light(), Light::lightOn);
+                    join(lightSystem,
+                            par(ls->ls.threshold(), Threshold::skipIfDark),
+                            par(ls->ls.light(), Light::lightOn));
                     seq(lightSystem, LightSystem::message1);
                 }),
                 kase(lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
                     seq(lightSystem, LightSystem::message2);
                 }),
                 kase(lightSystem->lightSystem.isLightAndLightOn(), lightSystem->lightSystem.isLightAndLightOff(), lightSystem->{
-                    seq(lightSystem.threshold(), Threshold::skipIfLight); // dont print skips to controlled english, requires update
+                    seq(lightSystem.threshold(), Threshold::skipIfLight);
                     seq(lightSystem.light(), Light::lightOff);
                     seq(lightSystem, LightSystem::message3);
                 }),
