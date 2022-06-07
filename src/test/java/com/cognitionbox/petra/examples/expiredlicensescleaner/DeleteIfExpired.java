@@ -1,12 +1,13 @@
 package com.cognitionbox.petra.examples.expiredlicensescleaner;
 
+import com.cognitionbox.petra.annotations.Graph;
 import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.step.PGraph;
 
 import static com.cognitionbox.petra.lang.Petra.*;
 
 @View public interface DeleteIfExpired extends License {
-    static void accept(License l) {
+    @Graph static void accept(License l) {
         kases(l,
                 kase(license->license.licenseFileExistsAndExpired(), license->license.licenseFileNotExistsAndExpired(),
                     license->{

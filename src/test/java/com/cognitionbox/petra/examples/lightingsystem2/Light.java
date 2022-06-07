@@ -1,6 +1,7 @@
 package com.cognitionbox.petra.examples.lightingsystem2;
 
 import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.Graph;
 import com.cognitionbox.petra.annotations.View;
 
 import static com.cognitionbox.petra.lang.Petra.*;
@@ -12,7 +13,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
     default boolean off(){ return button().off() || power().off();}
     default boolean on(){return button().on() && power().on();}
 
-    static void lightOff(Light l){
+    @Graph static void lightOff(Light l){
         kases(l,
                 kase(light->light.on(), light->light.off(),light->{
                     seq(light.button(),Button::buttonOff);
@@ -21,7 +22,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
                 }));
     }
 
-    static void lightOn(Light l){
+    @Graph static void lightOn(Light l){
         kases(l,
                 kase(light->light.off(), light->light.on(),light->{
                     join(light,
@@ -38,7 +39,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
                 }));
     }
 
-    static void toggleLight(Light l){
+    @Graph static void toggleLight(Light l){
         kases(l,
                 kase(light->light.off(), light->light.on(),light->{
                     seq(light,Light::lightOn);

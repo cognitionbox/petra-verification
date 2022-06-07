@@ -1,6 +1,7 @@
 package com.cognitionbox.petra.examples.sensorlightingsystem;
 
 import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.Graph;
 import com.cognitionbox.petra.annotations.View;
 
 import static com.cognitionbox.petra.lang.Petra.*;
@@ -14,7 +15,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
     default boolean isLightAndLightOff(){return threshold().isLight() && light().off();}
     default boolean isLightAndLightOn(){return threshold().isLight() && light().on();}
 
-    static void updateLight(LightSystem l){
+    @Graph static void updateLight(LightSystem l){
         kases(l,
                 kase(lightSystem->lightSystem.isDarkAndLightOff(), lightSystem->lightSystem.isDarkAndLightOn(), lightSystem->{
                     join(lightSystem,

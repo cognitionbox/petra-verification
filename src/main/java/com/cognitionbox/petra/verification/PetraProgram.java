@@ -1860,7 +1860,7 @@ public class PetraProgram {
 
                             } else {
                                 sb.append("Case "+i+".\nGiven"+formatCondition(a.asMethodCallExpr().getArguments().get(0).toString())+",\n");
-                                if (!action.isAnnotationPresent(Edge.class)){
+                                if (action.isAnnotationPresent(Graph.class)){
                                     for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                         String stepName = null;
                                         if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){
@@ -1897,7 +1897,7 @@ public class PetraProgram {
                             if (i==0){
                                 // skip
                             } else {
-                                if (!action.isAnnotationPresent(Edge.class)){
+                                if (action.isAnnotationPresent(Graph.class)){
                                     for (Statement step : a.asMethodCallExpr().getArgument(2).asLambdaExpr().getBody().asBlockStmt().getStatements()){
                                         String stepName = null;
                                         if (step.asExpressionStmt().getExpression().asMethodCallExpr().getName().toString().equals("join")){

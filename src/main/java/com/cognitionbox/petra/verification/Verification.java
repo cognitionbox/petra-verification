@@ -67,7 +67,7 @@ public class Verification {
                 for (MethodDeclaration action : cu.getCompilationUnit()
                         .getInterfaceByName(cu.getClazz().getSimpleName()).get()
                         .getMethodsByParameterTypes(superInterface)) {
-                    if (!action.isAnnotationPresent(Edge.class)) {
+                    if (action.isAnnotationPresent(Graph.class)) {
                         Set<List<String>> overlappingStates = new HashSet<>();
                         Set<List<String>> kaseSymbolicStates = new HashSet<>();
                         int count = 0;

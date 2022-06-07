@@ -1,6 +1,7 @@
 package com.cognitionbox.petra.examples.clothingchoice;
 
 import com.cognitionbox.petra.annotations.Edge;
+import com.cognitionbox.petra.annotations.Graph;
 import com.cognitionbox.petra.annotations.View;
 import com.cognitionbox.petra.lang.step.PGraph;
 
@@ -9,7 +10,7 @@ import static com.cognitionbox.petra.lang.Petra.*;
 @View
 public interface ClothingChoiceL1 extends SystemStates {
 
-    static void main(SystemStates s){
+    @Graph static void main(SystemStates s){
         kases(s,
                 kase(systemStates->systemStates.clothing().undecided(),
                         systemStates->
@@ -36,7 +37,7 @@ public interface ClothingChoiceL1 extends SystemStates {
         );
     }
 
-    static void accept(SystemStates s) {
+    @Graph static void accept(SystemStates s) {
         kases(s,
                 kase(systemStates -> (systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekday()) ^
                                 (systemStates.clothing().undecided() && systemStates.dayAndWeather().rainyWeekend())  ^

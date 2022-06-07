@@ -13,8 +13,7 @@ import static com.cognitionbox.petra.lang.Petra.kases;
 
 @View
 public interface G2Implementation extends SomeView2 {
-    @Edge
-    static void accept(SomeView2 f) {
+    @Edge static void accept(SomeView2 f) {
         kases(f,kase(someView2->someView2.w(), someView2->someView2.x(), someView2->{
 
         }));
